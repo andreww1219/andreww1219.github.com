@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法 | Andrew的个人博客</title><meta name="author" content="Andrew Wang"><meta name="copyright" content="Andrew Wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言学习吴恩达机器学习视频的第二篇笔记，内容包括：  第七章————正则化 第八、九章————神经网络 第十章————机器学习诊断法  一、正则化1. 应用背景在前面对线性回归、逻辑回归的学习中，我们都是构造一个假设$h_\theta(x)$，然后得到他的损失函数$J(\theta)$，对其进行梯度下降操作使损失函数的值尽可能小。总而言之，就是对我们的训练集作出最好的拟合。 然而，当我们增加特征的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法">
+<meta property="og:url" content="https://andreww1219.github.io/2024/01/14/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95/index.html">
+<meta property="og:site_name" content="Andrew的个人博客">
+<meta property="og:description" content="前言学习吴恩达机器学习视频的第二篇笔记，内容包括：  第七章————正则化 第八、九章————神经网络 第十章————机器学习诊断法  一、正则化1. 应用背景在前面对线性回归、逻辑回归的学习中，我们都是构造一个假设$h_\theta(x)$，然后得到他的损失函数$J(\theta)$，对其进行梯度下降操作使损失函数的值尽可能小。总而言之，就是对我们的训练集作出最好的拟合。 然而，当我们增加特征的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://andreww1219.github.io/img/2024/01/toki2.jpg">
+<meta property="article:published_time" content="2024-01-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-14T03:46:08.202Z">
+<meta property="article:author" content="Andrew Wang">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="线性回归">
+<meta property="article:tag" content="逻辑回归">
+<meta property="article:tag" content="BP神经网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://andreww1219.github.io/img/2024/01/toki2.jpg"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://andreww1219.github.io/2024/01/14/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.12.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-01-14 11:46:08'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/2024/01/toki2.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Andrew的个人博客"><span class="site-name">Andrew的个人博客</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-01-13T16:00:00.000Z" title="发表于 2024-01-14 00:00:00">2024-01-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-01-14T03:46:08.202Z" title="更新于 2024-01-14 11:46:08">2024-01-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>学习吴恩达机器学习视频的第二篇笔记，内容包括：</p>
+<ol>
+<li>第七章————正则化</li>
+<li>第八、九章————神经网络</li>
+<li>第十章————机器学习诊断法</li>
+</ol>
+<h1 id="一、正则化"><a href="#一、正则化" class="headerlink" title="一、正则化"></a>一、正则化</h1><h2 id="1-应用背景"><a href="#1-应用背景" class="headerlink" title="1. 应用背景"></a>1. 应用背景</h2><p>在前面对线性回归、逻辑回归的学习中，我们都是构造一个假设$h_\theta(x)$，然后得到他的损失函数$J(\theta)$，对其进行梯度下降操作使损失函数的值尽可能小。总而言之，就是对我们的训练集作出最好的拟合。</p>
+<p>然而，当我们增加特征的维度，完美地去拟合我们的训练集时，会得到一条相当扭曲，不具有泛化性地曲线，这就是过拟合的问题。解决过拟合问题主要有以下两个手段：</p>
+<ol>
+<li>减少特征的数量$n$</li>
+<li>采用正则化（也就是我们今天要介绍的内容）</li>
+</ol>
+<h2 id="2-什么是正则化？"><a href="#2-什么是正则化？" class="headerlink" title="2. 什么是正则化？"></a>2. 什么是正则化？</h2><p>我们采集了许多特征，并且相信这些特征对假设的预测值是有用的，并不想去舍弃它，又担心过拟合的问题。所以我们尽可能减小每个特征或某个特征对整体预测值的影响，在损失函数中增加<strong>对高特征值的惩罚</strong>，这就是正则化的思想。</p>
+<h2 id="3-线性回归中的正则化"><a href="#3-线性回归中的正则化" class="headerlink" title="3. 线性回归中的正则化"></a>3. 线性回归中的正则化</h2><h3 id="3-1-梯度下降中的正则化"><a href="#3-1-梯度下降中的正则化" class="headerlink" title="3.1 梯度下降中的正则化"></a>3.1 梯度下降中的正则化</h3><p>由2可知，我们要在损失函数$J(\theta)$增加对高特征值的惩罚，得到：</p>
+<script type="math/tex; mode=display">J(\theta) = \frac{1}{2m} [ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)})^2 + \lambda \sum_{j=1}^n \theta_j^2]</script><p>得到 <script type="math/tex">\frac{\partial J(\theta) }{\partial \theta_j}= \frac{1}{m} [ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)} + \lambda \theta_j]</script></p>
+<p>那么有：  </p>
+<script type="math/tex; mode=display">
+\begin{cases}
+\theta_0 = \theta_0 - \frac{\alpha}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)} \\
+\theta_j = \theta_j - \frac{\alpha}{m} [ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)} + \lambda \theta_j] = \theta_j(1 - \frac{\alpha\lambda}{m}) - \frac{\alpha}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)}
+\end{cases}</script><h3 id="3-2-正规方程中的正则化"><a href="#3-2-正规方程中的正则化" class="headerlink" title="3.2 正规方程中的正则化"></a>3.2 正规方程中的正则化</h3><p>将损失函数表示为矩阵形式，可得：</p>
+<p>$J(\theta) = \frac{1}{2m} [(X\theta - Y)^T(X\theta - Y) + \lambda \theta^T \theta]$</p>
+<p>得到 <script type="math/tex">\frac{\partial J(\theta) }{\partial \theta}= \frac{1}{m} [X^TX\theta - X^TY + \lambda \theta]</script></p>
+<p>令  <script type="math/tex">\frac{\partial J(\theta) }{\partial \theta} = 0</script>，得</p>
+<script type="math/tex; mode=display">\theta = (X^TX - \lambda E)X^TY</script><p>由于约定俗成的规则，$\theta_0$不参与正则化（实际参与得到的结果也差别不大），所以将上述式子中$E_{i,j}$的位置修改为0，就是正规方程带正则化的表达式。</p>
+<h2 id="4-逻辑回归中的正则化"><a href="#4-逻辑回归中的正则化" class="headerlink" title="4. 逻辑回归中的正则化"></a>4. 逻辑回归中的正则化</h2><p>同线性回归中的梯度下降，我们可以得到相同的结果即：</p>
+<script type="math/tex; mode=display">
+\begin{cases}
+\theta_0 = \theta_0 - \frac{\alpha}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)} \\
+\theta_j = \theta_j - \frac{\alpha}{m} [ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)} + \lambda \theta_j] = \theta_j(1 - \frac{\alpha\lambda}{m}) - \frac{\alpha}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x^{(i)}
+\end{cases}</script><h1 id="二、神经网络"><a href="#二、神经网络" class="headerlink" title="二、神经网络"></a>二、神经网络</h1><h2 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h2><p>输入层(Input Layer)：已知m组数据$x^{(1)}, x^{(2)}, …, x^{(m)}$，每组数据表示n个特征,可写为一个n+1维的向量<br>即：<script type="math/tex">(x^{(i)})^T = (x^{(i)}_0, x^{(i)}_1, ..., x^{(i)}_n)</script>，其中，$x^{(i)}_0=1$。</p>
+<p>隐层(Hidden Layer)：介于输入层和输出层之间，每个隐层的每个结点接收上一个隐层（或输入层）的信号，经过一定处理后得到新的信号并传递给下一个隐层（或输出层）</p>
+<p>输出层(Output Layer)：接受最后一个隐层的信号，经过加权处理后输出$y^{(i)}$。在多元分类问题中，向量$y^{(i)}$的维度就是所需要区分的类别的数量。</p>
+<h2 id="2-前向传播-Forward-Propagation"><a href="#2-前向传播-Forward-Propagation" class="headerlink" title="2. 前向传播(Forward Propagation)"></a>2. 前向传播(Forward Propagation)</h2><p>我们用$z_i^{(j)}$表示第$j$层的第$i$个结点接收到的前一层的值加权后的总和，$a_i^{(j)}$表示第$j$层的第$i$个结点的输出，矩阵$\Theta^{(j)}$表示从第$j$层到第$j+1$层的权值，行数为$j+1$层的节点数，列数为$j$层的节点数+1（存在常数固定层，可看作激活阈值），即</p>
+<p>$z_i^{(j+1)} = \sum_{k=0}^{第j层的结点数} \Theta_{i, k}^{(j)} a_k^j$</p>
+<p>$a_i^{(j+1)} = g(z_i^{(j+1)})$</p>
+<p>写成矩阵形式，则有 $ a^{(j+1)} = g( \Theta^{(j)} a^{(j)} )$</p>
+<p>于是我们可以写出神经网络的假设$h_\theta(x^{(i)}) = g( \Theta^{(L-1)} a^{(L-1)} ))$，其中$L$为神经网络的层数。</p>
+<h2 id="3-反向传播-Back-Propagation"><a href="#3-反向传播-Back-Propagation" class="headerlink" title="3. 反向传播(Back Propagation)"></a>3. 反向传播(Back Propagation)</h2><h3 id="3-1-定义损失函数"><a href="#3-1-定义损失函数" class="headerlink" title="3.1 定义损失函数"></a>3.1 定义损失函数</h3><p>有了假设，我们想要优化现有的模型，就需要对原有参数进行梯度下降，需要定义损失函数$J(\Theta)$，并对每一个参数即$\Theta_{i, k}^{(j)}$求偏导数$ \frac{\partial J(\Theta)}{\partial \Theta_{i, k}^{(j)}} $</p>
+<p>于是我们有预测值$h_\theta(x) = a^{(L)}$，真实值$y$，第$j$层的节点数为$s_j$，则有</p>
+<p>每个样本的均方误差 $E = \frac{1}{2} \sum_{i=1}^{s_L} (a_i^{(L)} - y_i)^2$</p>
+<p>损失函数$J(\Theta) = \frac{1}{m} \sum_{i=1}^m E^{(i)} $</p>
+<p>损失函数对参数的偏导数$\frac{\partial J(\Theta)}{\partial \Theta^{(j)}} = \frac{1}{m} \sum_{i=1}^m \frac{\partial  E^{(i)}}{\partial \Theta^{(j)}} $</p>
+<h3 id="3-2-引入链式求导法"><a href="#3-2-引入链式求导法" class="headerlink" title="3.2 引入链式求导法"></a>3.2 引入链式求导法</h3><p>我们想要直接求$E$对$\Theta_{i, k}^{(j)}$的偏导数不太容易，因为我们的预测值是前面一步一步传递过来的，离输出层越远，$E$和$\Theta_{i, k}^{(j)}$的关系就越复杂。但是其中项之间的关系简单，偏导数易求，所以我们可以通过链式求导法则，由中间项之间的偏导数累乘得到$E$对$\Theta_{i, k}^{(j)}$的偏导数。</p>
+<p>对输出层的参数，则有$ \frac{\partial E}{\partial \Theta_{i, k}^{(L-1)}}  =<br>\frac{\partial E}{\partial a_i^{(L)}}<br>\frac{\partial a_i^{(L)}}{\partial z_i^{(L)}}<br>\frac{\partial z_i^{(L)}}{\partial \Theta_{i, k}^{(L-1)}}$</p>
+<p>其中，$\frac{\partial E}{\partial a_i^{(L)}} = a_i^{(L)} - y_i,<br>\frac{\partial a_i^{(L)}}{\partial z_i^{(L)}} = g’(z_i^{(L)}) = a_i^{(L)}(1 - a_i^{(L)}),<br>\frac{\partial z_i^{(L)}}{\partial \Theta_{i, k}^{(L-1)}} =a_k^{(L-1)} $</p>
+<p>得$ \frac{\partial E}{\partial \Theta_{i, k}^{(L-1)}}  =<br>(a_i^{(L)} - y_i) a_i^{(L)}(1 - a_i^{(L)}) a_k^{(L-1)}$</p>
+<p>我们将$\frac{\partial E}{\partial z_i^{(L)}} =<br>\frac{\partial E}{\partial a_i^{(L)}}<br>\frac{\partial a_i^{(L)}}{\partial z_i^{(L)}}  =<br>(a_i^{(L)} - y_i) a_i^{(L)}(1 - a_i^{(L)})$ 记作输出层的误差(error)为$\delta_i^{(L)}$，即</p>
+<p>$\delta^{(L)} = (a^{(L)} - y) .* g’(z^{(L)})$</p>
+<p><strong>(存疑，视频中取的$\delta^{(L)} = a^{(L)} - y$)</strong></p>
+<p>于是我们用$\delta^{(l)}$表示<strong>均方误差$E$对第$l$层$z$的偏导</strong></p>
+<h3 id="3-3-矩阵形式"><a href="#3-3-矩阵形式" class="headerlink" title="3.3 矩阵形式"></a>3.3 矩阵形式</h3><p>矩阵/向量/标量之间求导参考：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/262751195?utm_id=0">机器学习中的数学理论1：三步搞定矩阵求导</a></p>
+<p>我们希望得到$E$对结果层参数$\Theta^{(L-1)}$的偏导数，即标量对矩阵的求导，使用<strong>分母布局</strong>，得到与$\Theta^{(L-1)}$相同维度的矩阵，方便减法运算作梯度下降。</p>
+<p>由链式求导法则，有</p>
+<p>$ \frac{\partial E}{\partial \Theta^{(L-1)}}  =<br>\frac{\partial E}{\partial z^{(L)}}<br>\frac{\partial z^{(L)}}{\partial \Theta^{(L-1)}}$</p>
+<p>由于$\frac{\partial E}{\partial z^{(L)}} = \delta^{(L)}$，</p>
+<p>又$z^{(L)} = \Theta^{(L-1)} a^{(L-1)}$，则有$ \frac{\partial z^{(L)}}{\partial \Theta^{(L-1)}} =<br>\frac{\partial \Theta^{(L-1)} \alpha^{(L-1)}}{\partial \Theta^{(L-1)}} = (\alpha^{(L-1)})^T<br>$（使用分母布局）</p>
+<p>综上所述，$ \frac{\partial E}{\partial \Theta^{(L-1)}}  = \delta^{(L)} (\alpha^{(L-1)})^T$</p>
+<p>记均方误差$E$对$\Theta^{(j)}$的偏导为$\Delta^{(j)}$，则有$ \Delta^{(L-1)} = \delta^{(L)} (\alpha^{(L-1)})^T$</p>
+<h3 id="3-3-推导递推公式"><a href="#3-3-推导递推公式" class="headerlink" title="3.3 推导递推公式"></a>3.3 推导递推公式</h3><p>已知$\delta^{(l-1)} =<br>\frac{\partial E}{\partial z^{(l-1)}}$，那么</p>
+<p>$\delta^{(l-1)} =<br>\frac{\partial E}{\partial z^{(l)}}<br>\frac{\partial z^{(l)}}{\partial z^{(l-1)}} =<br>\delta^{(l)}<br>\frac{\partial z^{(l)}}{\partial a^{(l-1)}}<br>\frac{\partial a^{(l-1)}}{\partial z^{(l-1)}} =<br>(\Theta^{(l-1)})^T \delta^{(l)} .* g’(z^{(l-1)})<br>$</p>
+<p>即$\delta^{(l-1)} =<br>(\Theta^{(l-1)})^T \delta^{(l)} .* g’(z^{(l-1)})<br>$ ，这就是误差反向传导的递推公式</p>
+<p>又$\frac{\partial z^{(l-1)}}{\partial \Theta^{(l-1)}} =<br>(a^{(l-1)})^T<br>$<br>同理</p>
+<p>$\Delta^{(l-1)} = \frac{\partial E}{\partial \Theta^{(l-1)}}  = \delta^{(l)} (a^{(l-1)})^T$</p>
+<h3 id="3-4-小结"><a href="#3-4-小结" class="headerlink" title="3.4 小结"></a>3.4 小结</h3><p>记损失函数对$\Theta^{(l)}$的偏导数为$D^{(l)} = \frac{\partial J(\Theta)}{\partial \Theta^{(l)}}$，则有</p>
+<p>$D_{i, j}^{(l)} = \frac{1}{m} \sum^m \Delta_{i, j}^{(l)} =<br>\frac{1}{m} \sum^m \delta_i^{(l)} a_j^{(l-1)}$</p>
+<p>若引入正则化项，则有</p>
+<p>$D_{i, j}^{(l)} = \frac{1}{m} \sum^m \Delta_{i, j}^{(l)} =<br>\frac{1}{m} \sum^m \delta_i^{(l)} a_j^{(l-1)} + \lambda \Theta_{i, j}^{(l)}$</p>
+<h1 id="三、机器学习诊断法"><a href="#三、机器学习诊断法" class="headerlink" title="三、机器学习诊断法"></a>三、机器学习诊断法</h1><h2 id="1-问题描述-1"><a href="#1-问题描述-1" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h2><p>我们需要评估我们训练出来的模型，判断是否过拟合，即高方差(variance)，还是欠拟合，即高偏差(bias)。通常情况下，我们有许多方式去改进模型，但是不知道应该选哪一种。我们将讨论各个参数与偏差、方差的关系，帮助我们确定模型是处于高方差还是高偏差，应该怎样采取调整策略。</p>
+<h2 id="2-讨论变量"><a href="#2-讨论变量" class="headerlink" title="2.讨论变量"></a>2.讨论变量</h2><p>我们将遵循同一分布的数据集划分为训练集和验证集，训练集用来训练得到某一变量在不同值下的模型，由验证集对该变量进行选择。</p>
+<p>记训练集误差为$J_{train}(\theta)$，验证集误差为$J_{cv}(\theta)$</p>
+<p>我们选择测试集误差最小的模型作为结果</p>
+<p>但是，要如何验证我们模型的泛化能力？即模型对不同但具有相似分布的数据集(测试集)的表现。</p>
+<p>所以我们一开始将数据集划分为训练集、验证集和测试集，由验证集对变量进行选择，由测试集对模型的泛化能力进行评估，<strong>不能将测试集用于调整参数，否则会导致过拟合</strong></p>
+<h3 id="2-1-特征数-d"><a href="#2-1-特征数-d" class="headerlink" title="2.1 特征数$d$"></a>2.1 特征数$d$</h3><p>我们记参数的多项式次数（相当于特征数）为d</p>
+<p>当特征数过少时，训练集误差$J_{train}(\theta)$和验证集误差$J_{cv}(\theta)$都很大，模型欠拟合；<br>当特征数过多时，训练集误差$J_{train}(\theta)$很小，而验证集误差$J_{cv}(\theta)$较大，模型过拟合</p>
+<h3 id="2-2-正则化参数-lambda"><a href="#2-2-正则化参数-lambda" class="headerlink" title="2.2 正则化参数$\lambda$"></a>2.2 正则化参数$\lambda$</h3><p>当$\lambda$很小时，训练集误差$J_{train}(\theta)$很小，而验证集误差$J_{cv}(\theta)$较大，模型过拟合;<br>当$\lambda$很大时，训练集误差$J_{train}(\theta)$和验证集误差$J_{cv}(\theta)$都很大，模型欠拟合</p>
+<h3 id="2-3-数据集规模-m"><a href="#2-3-数据集规模-m" class="headerlink" title="2.3 数据集规模$m$"></a>2.3 数据集规模$m$</h3><p>我们将数据集规模$m$与误差关系的曲线叫做学习曲线</p>
+<p>在高偏差即欠拟合的情况下，随着数据集规模$m$的增大，训练集误差将非常接近于验证集误差<br>在高方差即过拟合的情况下，随着数据集规模$m$的增大，验证集误差能有效减小，说明在过拟合情况下，增大数据规模是有效的</p>
+<h2 id="3-小结"><a href="#3-小结" class="headerlink" title="3. 小结"></a>3. 小结</h2><p>当模型高方差时，我们可以选择：</p>
+<ol>
+<li>增大数据集规模</li>
+<li>减小特征数$d$</li>
+<li>增大正则化参数$\lambda$</li>
+</ol>
+<p>当模型高偏差时，我们可以选择：</p>
+<ol>
+<li>增加特征数$d$</li>
+<li>减小正则化参数$\lambda$</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>作者: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io">Andrew Wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>链接: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io/2024/01/14/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95/">https://andreww1219.github.io/2024/01/14/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95/</a></span></div><!--.post-copyright__notice--><!--  span.post-copyright-meta--><!--    i.fas.fa-circle-exclamation.fa-fw--><!--    = _p('post.copyright.copyright_notice') + ": "span.post-copyright-info!= info--></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><a class="post-meta__tags" href="/tags/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/">线性回归</a><a class="post-meta__tags" href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a><a class="post-meta__tags" href="/tags/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">BP神经网络</a></div><!--include includes/third-party/share/index.pug--></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/01/15/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E3%80%81%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA(SVM)%E3%80%81K-Means%E7%AE%97%E6%B3%95%E3%80%81%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E6%B3%95(PCA)/" title="机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/mika.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)</div></div></a></div><div class="next-post pull-right"><a href="/2024/01/11/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92(Linear%20Regression)%E3%80%81%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%EF%BC%88Logistic%20Regression%EF%BC%89/" title="一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/FOX1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/01/11/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92(Linear%20Regression)%E3%80%81%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%EF%BC%88Logistic%20Regression%EF%BC%89/" title="一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/FOX1.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-11</div><div class="title">一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）</div></div></a></div><div><a href="/2024/01/15/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E3%80%81%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA(SVM)%E3%80%81K-Means%E7%AE%97%E6%B3%95%E3%80%81%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E6%B3%95(PCA)/" title="机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/mika.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-15</div><div class="title">机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)</div></div></a></div><div><a href="/2024/01/16/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B%E3%80%81%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E3%80%81%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%81%E5%9B%BE%E7%89%87OCR/" title="机器学习笔记——异常检测、推荐系统、大规模机器学习、图片OCR"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/%E7%83%9F%E8%8A%B1.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-16</div><div class="title">机器学习笔记——异常检测、推荐系统、大规模机器学习、图片OCR</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Andrew Wang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/andreww1219"><i class="fab fa-github"></i><span>GitHub</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">一、正则化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BA%94%E7%94%A8%E8%83%8C%E6%99%AF"><span class="toc-text">1. 应用背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%BB%80%E4%B9%88%E6%98%AF%E6%AD%A3%E5%88%99%E5%8C%96%EF%BC%9F"><span class="toc-text">2. 什么是正则化？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">3. 线性回归中的正则化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">3.1 梯度下降中的正则化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%AD%A3%E8%A7%84%E6%96%B9%E7%A8%8B%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">3.2 正规方程中的正则化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">4. 逻辑回归中的正则化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="toc-text">二、神经网络</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="toc-text">1. 问题描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD-Forward-Propagation"><span class="toc-text">2. 前向传播(Forward Propagation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD-Back-Propagation"><span class="toc-text">3. 反向传播(Back Propagation)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AE%9A%E4%B9%89%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="toc-text">3.1 定义损失函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%BC%95%E5%85%A5%E9%93%BE%E5%BC%8F%E6%B1%82%E5%AF%BC%E6%B3%95"><span class="toc-text">3.2 引入链式求导法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%9F%A9%E9%98%B5%E5%BD%A2%E5%BC%8F"><span class="toc-text">3.3 矩阵形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%8E%A8%E5%AF%BC%E9%80%92%E6%8E%A8%E5%85%AC%E5%BC%8F"><span class="toc-text">3.3 推导递推公式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E5%B0%8F%E7%BB%93"><span class="toc-text">3.4 小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95"><span class="toc-text">三、机器学习诊断法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0-1"><span class="toc-text">1. 问题描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%AE%A8%E8%AE%BA%E5%8F%98%E9%87%8F"><span class="toc-text">2.讨论变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%89%B9%E5%BE%81%E6%95%B0-d"><span class="toc-text">2.1 特征数$d$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%AD%A3%E5%88%99%E5%8C%96%E5%8F%82%E6%95%B0-lambda"><span class="toc-text">2.2 正则化参数$\lambda$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%95%B0%E6%8D%AE%E9%9B%86%E8%A7%84%E6%A8%A1-m"><span class="toc-text">2.3 数据集规模$m$</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%B0%8F%E7%BB%93"><span class="toc-text">3. 小结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/01/16/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B%E3%80%81%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E3%80%81%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%81%E5%9B%BE%E7%89%87OCR/" title="机器学习笔记——异常检测、推荐系统、大规模机器学习、图片OCR"><img src="/img/loading.png" data-original="/img/2024/01/%E7%83%9F%E8%8A%B1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机器学习笔记——异常检测、推荐系统、大规模机器学习、图片OCR"/></a><div class="content"><a class="title" href="/2024/01/16/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B%E3%80%81%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E3%80%81%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%81%E5%9B%BE%E7%89%87OCR/" title="机器学习笔记——异常检测、推荐系统、大规模机器学习、图片OCR">机器学习笔记——异常检测、推荐系统、大规模机器学习、图片OCR</a><time datetime="2024-01-15T16:00:00.000Z" title="发表于 2024-01-16 00:00:00">2024-01-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/15/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E3%80%81%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA(SVM)%E3%80%81K-Means%E7%AE%97%E6%B3%95%E3%80%81%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E6%B3%95(PCA)/" title="机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)"><img src="/img/loading.png" data-original="/img/2024/01/mika.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)"/></a><div class="content"><a class="title" href="/2024/01/15/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E3%80%81%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA(SVM)%E3%80%81K-Means%E7%AE%97%E6%B3%95%E3%80%81%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E6%B3%95(PCA)/" title="机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)">机器学习笔记——机器学习系统设计、支持向量机(SVM)、K-Means算法、主成分分析法(PCA)</a><time datetime="2024-01-14T16:00:00.000Z" title="发表于 2024-01-15 00:00:00">2024-01-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/14/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95/" title="一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法"><img src="/img/loading.png" data-original="/img/2024/01/toki2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法"/></a><div class="content"><a class="title" href="/2024/01/14/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96%E3%80%81%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E3%80%81%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%8A%E6%96%AD%E6%B3%95/" title="一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法">一文讲清楚机器学习中的正则化、神经网络、机器学习诊断法</a><time datetime="2024-01-13T16:00:00.000Z" title="发表于 2024-01-14 00:00:00">2024-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/11/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92(Linear%20Regression)%E3%80%81%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%EF%BC%88Logistic%20Regression%EF%BC%89/" title="一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）"><img src="/img/loading.png" data-original="/img/2024/01/FOX1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）"/></a><div class="content"><a class="title" href="/2024/01/11/%E4%B8%80%E6%96%87%E8%AE%B2%E6%B8%85%E6%A5%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92(Linear%20Regression)%E3%80%81%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%EF%BC%88Logistic%20Regression%EF%BC%89/" title="一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）">一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression）</a><time datetime="2024-01-10T16:00:00.000Z" title="发表于 2024-01-11 00:00:00">2024-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/05/DS%E5%9B%BE-%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" title="DS图-最小生成树"><img src="/img/loading.png" data-original="/img/2024/01/%E5%B0%8F%E6%A2%93.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DS图-最小生成树"/></a><div class="content"><a class="title" href="/2024/01/05/DS%E5%9B%BE-%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" title="DS图-最小生成树">DS图-最小生成树</a><time datetime="2024-01-04T16:00:00.000Z" title="发表于 2024-01-05 00:00:00">2024-01-05</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Andrew Wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script></body></html>
