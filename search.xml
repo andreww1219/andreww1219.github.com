@@ -22,9 +22,9 @@
             
             <tag> 机器学习 </tag>
             
-            <tag> 异常检测 </tag>
-            
             <tag> 梯度下降 </tag>
+            
+            <tag> 异常检测 </tag>
             
         </tags>
       
@@ -115,9 +115,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 逻辑回归 </tag>
-            
             <tag> 梯度下降 </tag>
+            
+            <tag> 逻辑回归 </tag>
             
         </tags>
       
