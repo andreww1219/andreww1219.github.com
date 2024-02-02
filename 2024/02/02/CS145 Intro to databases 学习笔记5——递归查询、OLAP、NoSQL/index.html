@@ -1,0 +1,374 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL | Andrew的个人博客</title><meta name="author" content="Andrew Wang"><meta name="copyright" content="Andrew Wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言好耶！终于刷完了。看到进阶课程CS245还挺有意思的，就是找不到公开课，啥时候再去啃啃pdf。 本文是作者学习standford CS145 Introduction to Databases系列视频的第五篇笔记辣，估计是最后一篇，主要包括了第十五章到第十七章的内容：  递归查询 OLAP NoSQL  相关参考资料： OLTP和OLAP的区别：OLAP和OLTP的区别是什么？ - 知乎 (z">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL">
+<meta property="og:url" content="https://andreww1219.github.io/2024/02/02/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B05%E2%80%94%E2%80%94%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2%E3%80%81OLAP%E3%80%81NoSQL/index.html">
+<meta property="og:site_name" content="Andrew的个人博客">
+<meta property="og:description" content="前言好耶！终于刷完了。看到进阶课程CS245还挺有意思的，就是找不到公开课，啥时候再去啃啃pdf。 本文是作者学习standford CS145 Introduction to Databases系列视频的第五篇笔记辣，估计是最后一篇，主要包括了第十五章到第十七章的内容：  递归查询 OLAP NoSQL  相关参考资料： OLTP和OLAP的区别：OLAP和OLTP的区别是什么？ - 知乎 (z">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://andreww1219.github.io/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF5.jpg">
+<meta property="article:published_time" content="2024-02-02T09:15:00.000Z">
+<meta property="article:modified_time" content="2024-02-02T09:17:26.483Z">
+<meta property="article:author" content="Andrew Wang">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="OLAP">
+<meta property="article:tag" content="NoSQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://andreww1219.github.io/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF5.jpg"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://andreww1219.github.io/2024/02/02/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B05%E2%80%94%E2%80%94%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2%E3%80%81OLAP%E3%80%81NoSQL/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.12.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-02-02 17:17:26'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">31</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF5.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Andrew的个人博客"><span class="site-name">Andrew的个人博客</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-02-02T09:15:00.000Z" title="发表于 2024-02-02 17:15:00">2024-02-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-02-02T09:17:26.483Z" title="更新于 2024-02-02 17:17:26">2024-02-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>好耶！终于刷完了。看到进阶课程CS245还挺有意思的，就是找不到公开课，啥时候再去啃啃pdf。</p>
+<p>本文是作者学习<strong>standford CS145 Introduction to Databases</strong>系列视频的第五篇笔记辣，估计是最后一篇，主要包括了第十五章到第十七章的内容：</p>
+<ol>
+<li>递归查询</li>
+<li>OLAP</li>
+<li>NoSQL</li>
+</ol>
+<p>相关参考资料：</p>
+<p>OLTP和OLAP的区别：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/305820203">OLAP和OLTP的区别是什么？ - 知乎 (zhihu.com)</a></p>
+<p>With Cude 和 With Rollup：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/343a684fc7a2">Hive中with cube、with rollup、grouping sets用法 - 简书 (jianshu.com)</a></p>
+<p>NoSQL数据库的代表：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/418281466">一文打尽，主流 NoSQL 及应用场景详解～ - 知乎 (zhihu.com)</a></p>
+<hr>
+
+<h1 id="一、递归查询"><a href="#一、递归查询" class="headerlink" title="一、递归查询"></a>一、递归查询</h1><h2 id="1-基本介绍"><a href="#1-基本介绍" class="headerlink" title="1. 基本介绍"></a>1. 基本介绍</h2><h3 id="1-1-WITH-AS语句"><a href="#1-1-WITH-AS语句" class="headerlink" title="1.1 WITH AS语句"></a>1.1 WITH AS语句</h3><p>利用<strong>WITH AS</strong>语句<strong>为查询语句指定一个标识符</strong>，方便其他查询去调用<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">With</span> RI <span class="keyword">As</span> (query_1)</span><br><span class="line">     R2 <span class="keyword">As</span> (query_2)</span><br><span class="line">     Rn <span class="keyword">As</span> (query_n)</span><br><span class="line"><span class="operator">&lt;</span>query involving Rl, ..., Rn (<span class="keyword">and</span> other tables)<span class="operator">&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>指定为<strong>RECURSIVE</strong>表示允许语句自身递归调用以及语句之间相互递归<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">With</span> <span class="keyword">Recursive</span></span><br><span class="line">     RI <span class="keyword">As</span> (query_1)</span><br><span class="line">     R2 <span class="keyword">As</span> (query_2)</span><br><span class="line">     Rn <span class="keyword">As</span> (query_n)</span><br><span class="line"><span class="operator">&lt;</span>query involving Rl, ..., Rn (<span class="keyword">and</span> other tables)<span class="operator">&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>一般来说，使用RECURSIVE时，查询语句应该满足以下形式<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">With</span> <span class="keyword">Recursive</span></span><br><span class="line">     R <span class="keyword">As</span> (base query</span><br><span class="line">             <span class="keyword">Union</span> </span><br><span class="line">             <span class="keyword">recursive</span> query)</span><br><span class="line"><span class="operator">&lt;</span>query involving R (<span class="keyword">and</span> other tables)<span class="operator">&gt;</span></span><br></pre></td></tr></table></figure><br>在这里使用Union而不是Union All是为了避免不断加入重复值，使递归得以终止</p>
+<h3 id="1-2-线性递归-Linear-Recursion"><a href="#1-2-线性递归-Linear-Recursion" class="headerlink" title="1.2 线性递归(Linear Recursion)"></a>1.2 线性递归(Linear Recursion)</h3><p>在recursive query中<strong>只递归调用自身一次</strong>的，叫做<strong>线性递归</strong></p>
+<p>常用于表中每个元组指定了直接的上下级关系，要求找到所有的无论直接或间接的上下级关系</p>
+<p>示例如下：</p>
+<p>(1) 已有表ParentOf(parent, child)，给定一个名字，找到他所有的祖先<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    Ancestor(a,d) <span class="keyword">as</span> (<span class="keyword">select</span> parent <span class="keyword">as</span> a, child <span class="keyword">as</span> d <span class="keyword">from</span> ParentOf</span><br><span class="line">                      <span class="keyword">union</span></span><br><span class="line">                      <span class="keyword">select</span> Ancestor.a, Parentof.child <span class="keyword">as</span> d </span><br><span class="line">                      <span class="keyword">from</span> Ancestor, ParentOf</span><br><span class="line">                      <span class="keyword">where</span> Ancestor.d <span class="operator">=</span> Parentof.parent)</span><br><span class="line"><span class="keyword">select</span> a <span class="keyword">from</span> Ancestor <span class="keyword">where</span> d <span class="operator">=</span> <span class="string">&#x27;Mary&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>(2) 已有表<br>Project(name, mgrID) 包含项目的名字及其项目负责人(警觉)<br>Manager(mID, eID) 表示上下级关系，mID为上级的ID，eID为下级的ID<br>Emplyee(ID, salary) 表示员工的薪水<br>现求：给定一个项目的名字，求这个项目之下所有人的薪水总和<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--思路：先找到项目之下的所有人的ID，再与Employee表联合查询薪水总和</span></span><br><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    ProjectEmps <span class="keyword">as</span> ( <span class="keyword">select</span> mgrID <span class="keyword">as</span> ID <span class="keyword">from</span> Project <span class="keyword">where</span> name <span class="operator">=</span> <span class="string">&#x27;ProjectName&#x27;</span></span><br><span class="line">                     <span class="keyword">union</span></span><br><span class="line">                     <span class="keyword">select</span> <span class="keyword">distinct</span> eID <span class="keyword">as</span> ID </span><br><span class="line">                     <span class="keyword">from</span> Manager M, Project P</span><br><span class="line">                     <span class="keyword">where</span> M.mID <span class="operator">=</span> P.eID )</span><br><span class="line"><span class="keyword">select</span> <span class="built_in">sum</span>(salary)</span><br><span class="line"><span class="keyword">from</span> ProjectEmps </span><br><span class="line"><span class="keyword">where</span> ID <span class="keyword">in</span> (<span class="keyword">select</span> ID <span class="keyword">from</span> ProjectEmps)</span><br></pre></td></tr></table></figure></p>
+<p>(3) 已有表<br>Flight(orig, dest, cost) 表示从地点orig直达地点dest的航班需要的消费cost<br>现求：给定出发地和目的地，求从出发地到目的地的最小消费<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--思路：先找到所有直接或间接的路径及其消费，再根据出发地和目的地聚合查询</span></span><br><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    Route(orig, dest, total) <span class="keyword">as</span> </span><br><span class="line">               ( <span class="keyword">select</span> orig, dest, cost <span class="keyword">as</span> total <span class="keyword">from</span> Flight</span><br><span class="line">                 <span class="keyword">union</span></span><br><span class="line">                 <span class="keyword">select</span> R.orig, F.dest, (cost <span class="operator">+</span> total) <span class="keyword">as</span> total </span><br><span class="line">                 fromn Route R, Flight F</span><br><span class="line">                 <span class="keyword">where</span> R.dest <span class="operator">=</span> F.orig )</span><br><span class="line"><span class="keyword">select</span> <span class="built_in">min</span>(total) <span class="keyword">from</span> Route</span><br><span class="line"><span class="keyword">where</span> orig <span class="operator">=</span> <span class="string">&#x27;origName&#x27;</span> <span class="keyword">and</span> dest <span class="operator">=</span> <span class="string">&#x27;destName&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<p>但是，当航班出现环时，会引起无限递归，需要<strong>限制递归次数</strong>，有两种方案：</p>
+<ol>
+<li>在最后的查询语句中<strong>使用limit</strong>：直接限制得到的结果数量，缺点是不能聚合查询</li>
+<li>在递归语句中<strong>引入计数变量</strong></li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--使用limit</span></span><br><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    Route(orig, dest, total) <span class="keyword">as</span> </span><br><span class="line">               ( <span class="keyword">select</span> orig, dest, cost <span class="keyword">as</span> total <span class="keyword">from</span> Flight</span><br><span class="line">                 <span class="keyword">union</span></span><br><span class="line">                 <span class="keyword">select</span> R.orig, F.dest, (cost <span class="operator">+</span> total) <span class="keyword">as</span> total </span><br><span class="line">                 fromn Route R, Flight F</span><br><span class="line">                 <span class="keyword">where</span> R.dest <span class="operator">=</span> F.orig )</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> Route  <span class="comment">--不能使用 select min(total)，因为这意味着查询期待20个最小值(没有意义)</span></span><br><span class="line"><span class="keyword">where</span> orig <span class="operator">=</span> <span class="string">&#x27;origName&#x27;</span> <span class="keyword">and</span> dest <span class="operator">=</span> <span class="string">&#x27;destName&#x27;</span> limit <span class="number">20</span>  <span class="comment">--限制结果只能有20条</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">--引入计数变量，计算路径的长度并加以限制</span></span><br><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    Route(orig, dest, total, length) <span class="keyword">as</span> </span><br><span class="line">               ( <span class="keyword">select</span> orig, dest, cost, <span class="number">1</span> <span class="keyword">as</span> total <span class="keyword">from</span> Flight  <span class="comment">--直达航班路径长度为1</span></span><br><span class="line">                 <span class="keyword">union</span></span><br><span class="line">                 <span class="keyword">select</span> R.orig, F.dest, (cost <span class="operator">+</span> total) <span class="keyword">as</span> total， (R.length <span class="operator">+</span> <span class="number">1</span>) <span class="keyword">as</span> length </span><br><span class="line">                 fromn Route R, Flight F</span><br><span class="line">                 <span class="keyword">where</span> R.dest <span class="operator">=</span> F.orig <span class="keyword">and</span> R.length <span class="operator">&lt;</span> <span class="number">10</span>)  <span class="comment">--限制路径长度不能超过10</span></span><br><span class="line"><span class="keyword">select</span> <span class="built_in">min</span>(total) <span class="keyword">from</span> Route</span><br><span class="line"><span class="keyword">where</span> orig <span class="operator">=</span> <span class="string">&#x27;origName&#x27;</span> <span class="keyword">and</span> dest <span class="operator">=</span> <span class="string">&#x27;destName&#x27;</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-非线性递归和互相递归"><a href="#2-非线性递归和互相递归" class="headerlink" title="2. 非线性递归和互相递归"></a>2. 非线性递归和互相递归</h2><h3 id="2-1-非线性递归-Non-linear-Recursion"><a href="#2-1-非线性递归-Non-linear-Recursion" class="headerlink" title="2.1 非线性递归(Non-linear Recursion)"></a>2.1 非线性递归(Non-linear Recursion)</h3><p>与线性递归相对地，<strong>非线性递归</strong>在递归语句中会<strong>多次引用自身</strong>。</p>
+<p>通过以下示例，让我们思考非线性递归有什么特点：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    Ancestor(a,d) <span class="keyword">as</span> (<span class="keyword">select</span> parent <span class="keyword">as</span> a, child <span class="keyword">as</span> d <span class="keyword">from</span> ParentOf</span><br><span class="line">                      <span class="keyword">union</span></span><br><span class="line">                      <span class="keyword">select</span> A1.a, A2.d </span><br><span class="line">                      <span class="keyword">from</span> Ancesror A1, Ancestor A2</span><br><span class="line">                      <span class="keyword">where</span> A1.d <span class="operator">=</span> A2.a)</span><br><span class="line"><span class="keyword">select</span> a <span class="keyword">from</span> Ancestor <span class="keyword">where</span> d <span class="operator">=</span> <span class="string">&#x27;Mary&#x27;</span></span><br></pre></td></tr></table></figure><br>在该示例中，我们连接两个Ancestor，而不是像前面一样用一个Ancestor连接原始的ParentOf。不难发现，这种连接方式能用<strong>更少的次数收敛到结果</strong></p>
+<p>但是由于非线性递归较难实现，<strong>SQL标准不要求</strong>非线性递归，<strong>现有的数据库系统也未实现</strong>非线性递归</p>
+<h3 id="2-2-互相递归-Mutual-Recursion"><a href="#2-2-互相递归-Mutual-Recursion" class="headerlink" title="2.2 互相递归(Mutual Recursion)"></a>2.2 互相递归(Mutual Recursion)</h3><p>相互递归是指<strong>多个被标识的递归语句成环地互相调用</strong></p>
+<h4 id="1-Hub-and-Authority-示例"><a href="#1-Hub-and-Authority-示例" class="headerlink" title="(1) Hub and Authority 示例"></a>(1) Hub and Authority 示例</h4><p>现有表<br>Link(src, dest) 表示src到dest存在一条有向边</p>
+<p>我们定义<br>被三个Hub所指的节点称作Authority<br>指向了三个Authority的节点称作Hub</p>
+<p>初始给定两表HubStart(node)包含部分Hub, AuthStart(node)包含部分Authority<br>现求所有的Hub和Authority<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> revursive </span><br><span class="line">    Hub <span class="keyword">as</span> ( <span class="keyword">select</span> node <span class="keyword">from</span> HubStart</span><br><span class="line">             <span class="keyword">union</span></span><br><span class="line">             <span class="keyword">select</span> src <span class="keyword">as</span> node <span class="keyword">from</span> Link</span><br><span class="line">             <span class="keyword">where</span> dest <span class="keyword">in</span> (<span class="keyword">select</span> node <span class="keyword">from</span> Auth)  <span class="comment">--指向Auth</span></span><br><span class="line">             <span class="keyword">group</span> <span class="keyword">by</span> src <span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;=</span> <span class="number">3</span>)  <span class="comment">--按src分组，找到指向Auth大于3的src就是Hub</span></span><br><span class="line">    Auth <span class="keyword">as</span> ( <span class="keyword">select</span> node <span class="keyword">from</span> AuthStart   </span><br><span class="line">              <span class="keyword">union</span></span><br><span class="line">              <span class="keyword">select</span> dest <span class="keyword">as</span> node <span class="keyword">from</span> Link</span><br><span class="line">              <span class="keyword">where</span> src <span class="keyword">in</span> (selcet node <span class="keyword">from</span> Hub)  <span class="comment">--被Hub所指</span></span><br><span class="line">              <span class="keyword">group</span> <span class="keyword">by</span> dest <span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;=</span> <span class="number">3</span>  <span class="comment">--按dest分组，被超过3个Hub所指的dest就是Auth</span></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> Hub;</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-两种不被允许的情况-在递归语句中"><a href="#2-两种不被允许的情况-在递归语句中" class="headerlink" title="(2) 两种不被允许的情况(在递归语句中)"></a>(2) 两种不被允许的情况(在递归语句中)</h4><p><strong>不允许负依赖</strong>(Negative Dependence)的子查询，示例如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> revursive </span><br><span class="line">    Hub <span class="keyword">as</span> ( <span class="keyword">select</span> node <span class="keyword">from</span> HubStart</span><br><span class="line">             <span class="keyword">union</span></span><br><span class="line">             <span class="keyword">select</span> src <span class="keyword">as</span> node <span class="keyword">from</span> Link</span><br><span class="line">             <span class="keyword">where</span> src <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> node <span class="keyword">from</span> Auth)  <span class="comment">--Hub不能同时为Hub</span></span><br><span class="line">             dest <span class="keyword">in</span> (<span class="keyword">select</span> node <span class="keyword">from</span> Auth)  </span><br><span class="line">             <span class="keyword">group</span> <span class="keyword">by</span> src <span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;=</span> <span class="number">3</span>)  </span><br><span class="line">    Auth <span class="keyword">as</span> ( <span class="keyword">select</span> node <span class="keyword">from</span> AuthStart   </span><br><span class="line">              <span class="keyword">union</span></span><br><span class="line">              <span class="keyword">select</span> dest <span class="keyword">as</span> node <span class="keyword">from</span> Link</span><br><span class="line">              <span class="keyword">where</span> dest <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> node <span class="keyword">from</span> Hub)  <span class="comment">--Auth不能同时为Hub</span></span><br><span class="line">              src <span class="keyword">in</span> (selcet node <span class="keyword">from</span> Hub)  </span><br><span class="line">              <span class="keyword">group</span> <span class="keyword">by</span> dest <span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;=</span> <span class="number">3</span>  </span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> Hub;</span><br></pre></td></tr></table></figure><br>当我们有一个节点同时为Hub和Authority时，它出现在哪个表中取决于我们创建Hub和Auth的顺序。<strong>SQL标准觉得这很反人类，于是不允许负依赖</strong></p>
+<p><strong>不允许聚合查询</strong><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> </span><br><span class="line">    R(x) <span class="keyword">as</span> ( <span class="keyword">select</span> x <span class="keyword">from</span> P</span><br><span class="line">           <span class="keyword">union</span></span><br><span class="line">           <span class="keyword">select</span> <span class="built_in">sum</span>(x) <span class="keyword">as</span> x <span class="keyword">from</span> R )</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> R</span><br></pre></td></tr></table></figure><br>假设P为{1, 2}<br>那么第一轮R为{1, 2, 3}<br>第二轮R为{1, 2, 6}<br>第三轮R为{1, 2, 9}…</p>
+<p>视频的解释是：对于R没有很好的定义，于是就不被SQL标准允许了(what?</p>
+<h3 id="2-3-小结"><a href="#2-3-小结" class="headerlink" title="2.3 小结"></a>2.3 小结</h3><p>SQL标准允许线性递归以及相互递归，未要求非线性递归。<br>不允许带负依赖的子查询，或者聚合查询的递归语句。</p>
+<p>现有数据库系统只有实现了线性递归</p>
+<blockquote>
+<p>Extends expressiveness of SQL</p>
+<ul>
+<li>Basic functionality: linear recursion</li>
+<li>Extended functionality: nonlinear recursion, mutual recursion</li>
+<li>Disallowed: recursive subqueries (negative), aggregation</li>
+</ul>
+</blockquote>
+<hr>
+
+<h1 id="二、OLAP-Online-Analytical-Processing"><a href="#二、OLAP-Online-Analytical-Processing" class="headerlink" title="二、OLAP(Online Analytical Processing)"></a>二、OLAP(Online Analytical Processing)</h1><h2 id="1-基本介绍-1"><a href="#1-基本介绍-1" class="headerlink" title="1. 基本介绍"></a>1. 基本介绍</h2><p>这几集刷下来就像学了一堆行业黑话，其实说到底OLAP就是用来分析大规模的数据，而不是对小部分的数据做增删改查，后者是传统关系型数据库的主要应用，称为OLTP(Online Transaction Processing)。</p>
+<p>两者的对比如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">OLAP/OLTP</th>
+<th style="text-align:center">事务</th>
+<th style="text-align:center">处理的数据规模</th>
+<th style="text-align:center">查询复杂程度</th>
+<th style="text-align:center">更新频率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">OLTP</td>
+<td style="text-align:center">短</td>
+<td style="text-align:center">小</td>
+<td style="text-align:center">低</td>
+<td style="text-align:center">频繁</td>
+</tr>
+<tr>
+<td style="text-align:center">OLAP</td>
+<td style="text-align:center">长</td>
+<td style="text-align:center">大</td>
+<td style="text-align:center">高</td>
+<td style="text-align:center">不频繁</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="2-星型模式-Star-Schema"><a href="#2-星型模式-Star-Schema" class="headerlink" title="2. 星型模式(Star Schema)"></a>2. 星型模式(Star Schema)</h2><p>OLTP组织数据使用的是ER模型，突出实体的特征和实体之间的连接。</p>
+<p>OLAP组织数据的模式则是Star Schema，由一个<strong>不常更新维度表</strong>引用<strong>多个经常更新事实表</strong>组成：</p>
+<ol>
+<li>维度表(Dimensions Table)：属性一般为各事实表的主键(维度属性)以及其他值(依赖属性)，更新不频繁且规模较小。</li>
+<li>事实表(Fact Table)：记录发生的事，更新频繁且规模很大，通常只允许插入</li>
+</ol>
+<p>一堆黑话我真的服了，我尽量讲人话吧：</p>
+<p>维度表包含三个维度和一个值时，我们给数据建一个三维坐标系，将所有数据看作一个立方体，称作<strong>数据立方体</strong>(Data Cube)。多个维度和多个值时也可以这么去抽象。</p>
+<p>只取坐标系上的一个面，也就是不考虑其中一个维度时，就是<strong>对特定维度做聚合操作</strong>，称作<strong>切片</strong>(Slice)，给这个维度加限制条件，即<strong>对特定维度下特定区间做聚合操作</strong>时，称作<strong>切块</strong>(Dice)</p>
+<p>假设我们现在对两个维度分组，现在想更精确地去分析数据，所以要<strong>多对一个维度分组</strong>，称作<strong>钻取</strong>(Drill-down)。相反地，我们觉得现在太精细了，想从更高层次对数据分析，所以要<strong>少对一个维度分组</strong>，称作<strong>上卷</strong>(Roll-up)。示例如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--现在只对两个维度分组</span></span><br><span class="line"><span class="keyword">select</span> state, brand, <span class="built_in">sum</span>(qty<span class="operator">*</span>price)</span><br><span class="line"><span class="keyword">From</span> Sales F, Store S, Item I</span><br><span class="line"><span class="keyword">Where</span> F.storeID <span class="operator">=</span> S.storeID <span class="keyword">And</span> F.itemID <span class="operator">=</span> I.itemID </span><br><span class="line"><span class="keyword">Group</span> <span class="keyword">By</span> state, brand</span><br><span class="line"></span><br><span class="line"><span class="comment">--再加一个维度叫做Drill-down</span></span><br><span class="line"><span class="keyword">select</span> state, brand, category, <span class="built_in">sum</span>(qty<span class="operator">*</span>price)</span><br><span class="line"><span class="keyword">From</span> Sales F, Store S, Item I</span><br><span class="line"><span class="keyword">Where</span> F.storeID <span class="operator">=</span> S.storeID <span class="keyword">And</span> F.itemID <span class="operator">=</span> I.itemID </span><br><span class="line"><span class="keyword">Group</span> <span class="keyword">By</span> state, brand, category</span><br><span class="line"></span><br><span class="line"><span class="comment">--少一个叫做Roll-up</span></span><br><span class="line"><span class="keyword">select</span> brand, <span class="built_in">sum</span>(qty<span class="operator">*</span>price)</span><br><span class="line"><span class="keyword">From</span> Sales F, Store S, Item I</span><br><span class="line"><span class="keyword">Where</span> F.storeID <span class="operator">=</span> S.storeID <span class="keyword">And</span> F.itemID <span class="operator">=</span> I.itemID </span><br><span class="line"><span class="keyword">Group</span> <span class="keyword">By</span> brand</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-SQL中的OLAP"><a href="#3-SQL中的OLAP" class="headerlink" title="3. SQL中的OLAP"></a>3. SQL中的OLAP</h2><p>SQL标准中，在Group By之后使用With Cude 和 With Rollup以便执行OLAP查询：</p>
+<ol>
+<li><strong>With Cude</strong>：查询结果包含各个维度的笛卡尔组合(包括NULL)，值为NULL代表对该维度聚合</li>
+<li><strong>With Rollup</strong>：一层一层向前Roll-up，即满足前一维度为NULL时，后一维度必定为NULL。适用于有层次结构的数据，比如统计省、市、县的人口</li>
+</ol>
+<p>MySQL支持With Rollup，Postgre和SQLite都不支持</p>
+<p>然而，With Cude可以由各个维度的With Rollup 做并操作得到，示例如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--MySQL不支持with cube</span></span><br><span class="line"><span class="keyword">select</span> storeID, itemID, custID,<span class="built_in">sum</span>(price) <span class="keyword">from</span> Sales</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> storeID, itemID, custID <span class="keyword">with</span> <span class="keyword">cube</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--上式可以等价于</span></span><br><span class="line"><span class="keyword">select</span> storeID, itemID, custID,<span class="built_in">sum</span>(price) <span class="keyword">from</span> Sales</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> storeID, itemID, custID <span class="keyword">with</span> <span class="keyword">rollup</span></span><br><span class="line"><span class="keyword">union</span></span><br><span class="line"><span class="keyword">select</span> storeID, itemID, custID, <span class="built_in">sum</span>(price) <span class="keyword">from</span> Sales</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> itemID, custID, storeID <span class="keyword">with</span> <span class="keyword">rollup</span></span><br><span class="line"><span class="keyword">union</span></span><br><span class="line"><span class="keyword">select</span> storeID, itemID, custID, <span class="built_in">sum</span>(price) <span class="keyword">from</span> Sales</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> custID, storeID, itemID <span class="keyword">with</span> <span class="keyword">rollup</span>;</span><br></pre></td></tr></table></figure></p>
+<hr>
+
+<h1 id="三、NoSQL"><a href="#三、NoSQL" class="headerlink" title="三、NoSQL"></a>三、NoSQL</h1><h2 id="1-基本介绍-2"><a href="#1-基本介绍-2" class="headerlink" title="1. 基本介绍"></a>1. 基本介绍</h2><p>NoSQL中的SQL不是指SQL这种查询语言，而是<strong>相对于传统的关系型数据库</strong>。No也不是没有的意思，而是<strong>Not Only</strong></p>
+<p>所以NoSQL就是用<strong>其他的关系模式去组织数据，使其能够解决传统关系型数据库不容易甚至不能解决的问题</strong>。通常具有以下特点：</p>
+<ol>
+<li>更灵活的数据组织模式</li>
+<li>更快地、更少消耗的搭建</li>
+<li>面向大规模的数据</li>
+<li>牺牲部分的一致性，允许近似解，去换取更高的性能</li>
+</ol>
+<blockquote>
+<p>+表示优点、-表示缺点<br>+Flexible schema<br>+Quicker/cheaper to set up<br>+Massive scalability<br>+Relaxed consistency-&gt;higher performance &amp; availability<br>-No declarative querylanguage-&gt;more programming<br>-Relaxed consistency-&gt;fewer guarantees</p>
+</blockquote>
+<p>常见的NoSQL数据库包括以下几个类型：</p>
+<ol>
+<li>MapReduce框架(MapReduce framework)</li>
+<li>键值数据库(Key-Values stores)</li>
+<li>文档数据库(Document stores)</li>
+<li>图数据库(Graph database systems)</li>
+<li>列存储数据库(Column stores)</li>
+</ol>
+<h2 id="2-MapReduce框架"><a href="#2-MapReduce框架" class="headerlink" title="2. MapReduce框架"></a>2. MapReduce框架</h2><p>MapReduce起源于Google，代表为Hadoop</p>
+<p>MapReduce框架中</p>
+<ol>
+<li>没有数据模型，直接从文件输入再输出到文件中</li>
+<li>由用户提供一系列函数：map(), reduce(), reader(), writer(), combiner()</li>
+<li>由系统将这些功能粘合(glue)在一起，同时提供容错(fault tolerance)和扩展性(scalability)</li>
+</ol>
+<p>其中，<br>reader()从文件中读取数据，<br>writer()将结果输出到文件中，<br>map()提供将问题分解为子问题的方法，<br>reduce()求解子问题然后合并为结果，<br>combiner()为可选功能，它位于map()和reduce()之间，对子问题预合并，以提高效率。</p>
+<p><img src="/img/loading.png" data-original="/img/2024/02/MapReduce.png" alt="image.png"></p>
+<h2 id="3-键值数据库"><a href="#3-键值数据库" class="headerlink" title="3. 键值数据库"></a>3. 键值数据库</h2><p>键值数据库的代表有Riak、Redis、Memcached、Amazon’s Dynamo、Project Voldemort</p>
+<p>键值数据库应用于OLTP，即小部分数据的频繁增删改查</p>
+<ul>
+<li>数据模型：(key, values) pairs 即键值对</li>
+<li>操作：<ul>
+<li>Insert(key, values) ：插入键值对</li>
+<li>Fetch(key)：根据键查询值</li>
+<li>Update(key)：根据键更新值</li>
+<li>Delete(key)：根据键删除键值对</li>
+</ul>
+</li>
+<li>有些数据库允许value中有更复杂的结构</li>
+<li>有些数据库允许在一定范围的查询</li>
+</ul>
+<h2 id="4-文档数据库"><a href="#4-文档数据库" class="headerlink" title="4. 文档数据库"></a>4. 文档数据库</h2><p>文档数据库的代表有MongoDB、CouchDB、RavenDB</p>
+<p>文档数据库的数据模型和操作跟键值数据库很像，只不过存储的文档有特定的类型</p>
+<ul>
+<li>数据模型：(key, document) pairs</li>
+<li>文档类型：JSON、XML等</li>
+<li>操作：<ul>
+<li>Insert(key, document) ：插入键和文档的对</li>
+<li>Fetch(key)：根据键查询文档</li>
+<li>Update(key)：根据键更新文档</li>
+<li>Delete(key)：根据键删除文档</li>
+</ul>
+</li>
+<li>可以根据文档类型做查询</li>
+</ul>
+<h2 id="5-图数据库"><a href="#5-图数据库" class="headerlink" title="5. 图数据库"></a>5. 图数据库</h2><p>图数据库的代表有Neo4J、Infinite Graph、OrientDB</p>
+<p>不同的图数据库之间实现差别很大</p>
+<ul>
+<li>数据模型：点集 和 边集</li>
+<li>节点包含有属性（包括节点的ID）</li>
+<li>边包含标签（表示节点之间的关系）</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>作者: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io">Andrew Wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>链接: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io/2024/02/02/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B05%E2%80%94%E2%80%94%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2%E3%80%81OLAP%E3%80%81NoSQL/">https://andreww1219.github.io/2024/02/02/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B05%E2%80%94%E2%80%94%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2%E3%80%81OLAP%E3%80%81NoSQL/</a></span></div><!--.post-copyright__notice--><!--  span.post-copyright-meta--><!--    i.fas.fa-circle-exclamation.fa-fw--><!--    = _p('post.copyright.copyright_notice') + ": "span.post-copyright-info!= info--></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><a class="post-meta__tags" href="/tags/SQL/">SQL</a><a class="post-meta__tags" href="/tags/OLAP/">OLAP</a><a class="post-meta__tags" href="/tags/NoSQL/">NoSQL</a></div><!--include includes/third-party/share/index.pug--></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/02/01/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B04%E2%80%94%E2%80%94%E7%B4%A2%E5%BC%95%E3%80%81%E7%BA%A6%E6%9D%9F%E3%80%81%E8%A7%A6%E5%8F%91%E5%99%A8%E3%80%81%E4%BA%8B%E5%8A%A1%E3%80%81%E8%A7%86%E5%9B%BE%E3%80%81%E6%8E%88%E6%9D%83/" title="CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权"><img class="cover" src="/img/loading.png" data-original="/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF4.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/01/27/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02%E2%80%94%E2%80%94Relational%20Algebra%E3%80%81SQL/" title="CS145 Intro to databases 学习笔记2——Relational Algebra、SQL"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/%E7%99%BD%E5%AD%907.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-27</div><div class="title">CS145 Intro to databases 学习笔记2——Relational Algebra、SQL</div></div></a></div><div><a href="/2024/02/01/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B04%E2%80%94%E2%80%94%E7%B4%A2%E5%BC%95%E3%80%81%E7%BA%A6%E6%9D%9F%E3%80%81%E8%A7%A6%E5%8F%91%E5%99%A8%E3%80%81%E4%BA%8B%E5%8A%A1%E3%80%81%E8%A7%86%E5%9B%BE%E3%80%81%E6%8E%88%E6%9D%83/" title="CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权"><img class="cover" src="/img/loading.png" data-original="/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF4.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-01</div><div class="title">CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权</div></div></a></div><div><a href="/2024/01/25/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01%E2%80%94%E2%80%94Relational%20Model%E3%80%81XML%E3%80%81JSON/" title="CS145 Intro to databases 学习笔记1——Relational Model、XML、JSON"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/%E5%AE%AB%E5%AD%90%E7%BE%8E%E6%B8%B8.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-25</div><div class="title">CS145 Intro to databases 学习笔记1——Relational Model、XML、JSON</div></div></a></div><div><a href="/2024/01/29/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B03%E2%80%94%E2%80%94%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%E3%80%81XML%E7%9A%84%E6%9F%A5%E8%AF%A2%E3%80%81UML/" title="CS145 Intro to databases 学习笔记3——关系型数据库设计、XML的查询、UML"><img class="cover" src="/img/loading.png" data-original="/img/2024/01/ALIS5.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-29</div><div class="title">CS145 Intro to databases 学习笔记3——关系型数据库设计、XML的查询、UML</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><a href="/"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info__name">Andrew Wang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">31</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2"><span class="toc-text">一、递归查询</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="toc-text">1. 基本介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-WITH-AS%E8%AF%AD%E5%8F%A5"><span class="toc-text">1.1 WITH AS语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E7%BA%BF%E6%80%A7%E9%80%92%E5%BD%92-Linear-Recursion"><span class="toc-text">1.2 线性递归(Linear Recursion)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%9D%9E%E7%BA%BF%E6%80%A7%E9%80%92%E5%BD%92%E5%92%8C%E4%BA%92%E7%9B%B8%E9%80%92%E5%BD%92"><span class="toc-text">2. 非线性递归和互相递归</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%9D%9E%E7%BA%BF%E6%80%A7%E9%80%92%E5%BD%92-Non-linear-Recursion"><span class="toc-text">2.1 非线性递归(Non-linear Recursion)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%BA%92%E7%9B%B8%E9%80%92%E5%BD%92-Mutual-Recursion"><span class="toc-text">2.2 互相递归(Mutual Recursion)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Hub-and-Authority-%E7%A4%BA%E4%BE%8B"><span class="toc-text">(1) Hub and Authority 示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%B8%A4%E7%A7%8D%E4%B8%8D%E8%A2%AB%E5%85%81%E8%AE%B8%E7%9A%84%E6%83%85%E5%86%B5-%E5%9C%A8%E9%80%92%E5%BD%92%E8%AF%AD%E5%8F%A5%E4%B8%AD"><span class="toc-text">(2) 两种不被允许的情况(在递归语句中)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">2.3 小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81OLAP-Online-Analytical-Processing"><span class="toc-text">二、OLAP(Online Analytical Processing)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D-1"><span class="toc-text">1. 基本介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%98%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F-Star-Schema"><span class="toc-text">2. 星型模式(Star Schema)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-SQL%E4%B8%AD%E7%9A%84OLAP"><span class="toc-text">3. SQL中的OLAP</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81NoSQL"><span class="toc-text">三、NoSQL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D-2"><span class="toc-text">1. 基本介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-MapReduce%E6%A1%86%E6%9E%B6"><span class="toc-text">2. MapReduce框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%94%AE%E5%80%BC%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">3. 键值数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%96%87%E6%A1%A3%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">4. 文档数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%9B%BE%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">5. 图数据库</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/02/02/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B05%E2%80%94%E2%80%94%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2%E3%80%81OLAP%E3%80%81NoSQL/" title="CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL"><img src="/img/loading.png" data-original="/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF5.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL"/></a><div class="content"><a class="title" href="/2024/02/02/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B05%E2%80%94%E2%80%94%E9%80%92%E5%BD%92%E6%9F%A5%E8%AF%A2%E3%80%81OLAP%E3%80%81NoSQL/" title="CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL">CS145 Intro to databases 学习笔记5——递归查询、OLAP、NoSQL</a><time datetime="2024-02-02T09:15:00.000Z" title="发表于 2024-02-02 17:15:00">2024-02-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/02/01/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B04%E2%80%94%E2%80%94%E7%B4%A2%E5%BC%95%E3%80%81%E7%BA%A6%E6%9D%9F%E3%80%81%E8%A7%A6%E5%8F%91%E5%99%A8%E3%80%81%E4%BA%8B%E5%8A%A1%E3%80%81%E8%A7%86%E5%9B%BE%E3%80%81%E6%8E%88%E6%9D%83/" title="CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权"><img src="/img/loading.png" data-original="/img/2024/02/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF4.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权"/></a><div class="content"><a class="title" href="/2024/02/01/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B04%E2%80%94%E2%80%94%E7%B4%A2%E5%BC%95%E3%80%81%E7%BA%A6%E6%9D%9F%E3%80%81%E8%A7%A6%E5%8F%91%E5%99%A8%E3%80%81%E4%BA%8B%E5%8A%A1%E3%80%81%E8%A7%86%E5%9B%BE%E3%80%81%E6%8E%88%E6%9D%83/" title="CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权">CS145 Intro to databases 学习笔记4——索引、约束、触发器、事务、视图、授权</a><time datetime="2024-01-31T16:30:00.000Z" title="发表于 2024-02-01 00:30:00">2024-02-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/29/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B03%E2%80%94%E2%80%94%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%E3%80%81XML%E7%9A%84%E6%9F%A5%E8%AF%A2%E3%80%81UML/" title="CS145 Intro to databases 学习笔记3——关系型数据库设计、XML的查询、UML"><img src="/img/loading.png" data-original="/img/2024/01/ALIS5.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CS145 Intro to databases 学习笔记3——关系型数据库设计、XML的查询、UML"/></a><div class="content"><a class="title" href="/2024/01/29/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B03%E2%80%94%E2%80%94%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%E3%80%81XML%E7%9A%84%E6%9F%A5%E8%AF%A2%E3%80%81UML/" title="CS145 Intro to databases 学习笔记3——关系型数据库设计、XML的查询、UML">CS145 Intro to databases 学习笔记3——关系型数据库设计、XML的查询、UML</a><time datetime="2024-01-29T09:15:00.000Z" title="发表于 2024-01-29 17:15:00">2024-01-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/27/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02%E2%80%94%E2%80%94Relational%20Algebra%E3%80%81SQL/" title="CS145 Intro to databases 学习笔记2——Relational Algebra、SQL"><img src="/img/loading.png" data-original="/img/2024/01/%E7%99%BD%E5%AD%907.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CS145 Intro to databases 学习笔记2——Relational Algebra、SQL"/></a><div class="content"><a class="title" href="/2024/01/27/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02%E2%80%94%E2%80%94Relational%20Algebra%E3%80%81SQL/" title="CS145 Intro to databases 学习笔记2——Relational Algebra、SQL">CS145 Intro to databases 学习笔记2——Relational Algebra、SQL</a><time datetime="2024-01-26T17:22:00.000Z" title="发表于 2024-01-27 01:22:00">2024-01-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/25/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01%E2%80%94%E2%80%94Relational%20Model%E3%80%81XML%E3%80%81JSON/" title="CS145 Intro to databases 学习笔记1——Relational Model、XML、JSON"><img src="/img/loading.png" data-original="/img/2024/01/%E5%AE%AB%E5%AD%90%E7%BE%8E%E6%B8%B8.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CS145 Intro to databases 学习笔记1——Relational Model、XML、JSON"/></a><div class="content"><a class="title" href="/2024/01/25/CS145%20Intro%20to%20databases%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01%E2%80%94%E2%80%94Relational%20Model%E3%80%81XML%E3%80%81JSON/" title="CS145 Intro to databases 学习笔记1——Relational Model、XML、JSON">CS145 Intro to databases 学习笔记1——Relational Model、XML、JSON</a><time datetime="2024-01-25T12:17:00.000Z" title="发表于 2024-01-25 20:17:00">2024-01-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Andrew Wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script></body></html>
