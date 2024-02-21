@@ -190,9 +190,9 @@
             
             <tag> 数据库 </tag>
             
-            <tag> 关系型数据库 </tag>
-            
             <tag> SQL </tag>
+            
+            <tag> 关系型数据库 </tag>
             
         </tags>
       
@@ -542,9 +542,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 逻辑回归 </tag>
-            
             <tag> 梯度下降 </tag>
+            
+            <tag> 逻辑回归 </tag>
             
         </tags>
       
@@ -625,9 +625,7 @@
             
             <tag> Java </tag>
             
-            <tag> RMI </tag>
-            
-            <tag> http </tag>
+            <tag> HTTP </tag>
             
         </tags>
       
