@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【SZU计算机网络实验】实现流式视频传输 | Andrew的个人博客</title><meta name="author" content="Andrew Wang"><meta name="copyright" content="Andrew Wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言一百年没有更新博客了，都怪开学一堆杂活（x 那就顺手把实验报告转到这边吧owo 本实验为SZU原创实验，实验开发团队的老师和助教们都很有耐心。。大赞，环境没配好去群里问是秒回的 相关资料： 实验文档：计算机网络课程综合实验平台 (snrc.site) 一、实验介绍该实验主要实现了一个服务端和一个客户端。其中，服务端利用缓冲区逐段向客户端发送多个视频片段，并在客户端逐段接收，并利用已经设计好的播">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【SZU计算机网络实验】实现流式视频传输">
+<meta property="og:url" content="https://andreww1219.github.io/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/index.html">
+<meta property="og:site_name" content="Andrew的个人博客">
+<meta property="og:description" content="前言一百年没有更新博客了，都怪开学一堆杂活（x 那就顺手把实验报告转到这边吧owo 本实验为SZU原创实验，实验开发团队的老师和助教们都很有耐心。。大赞，环境没配好去群里问是秒回的 相关资料： 实验文档：计算机网络课程综合实验平台 (snrc.site) 一、实验介绍该实验主要实现了一个服务端和一个客户端。其中，服务端利用缓冲区逐段向客户端发送多个视频片段，并在客户端逐段接收，并利用已经设计好的播">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://andreww1219.github.io/img/2024/03/azusa_hifumi.png">
+<meta property="article:published_time" content="2024-03-19T15:15:00.000Z">
+<meta property="article:modified_time" content="2024-03-19T15:14:03.230Z">
+<meta property="article:author" content="Andrew Wang">
+<meta property="article:tag" content="C语言">
+<meta property="article:tag" content="TCP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://andreww1219.github.io/img/2024/03/azusa_hifumi.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://andreww1219.github.io/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.12.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【SZU计算机网络实验】实现流式视频传输',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-19 23:14:03'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/2024/03/azusa_hifumi.png')"><nav id="nav"><span id="blog-info"><a href="/" title="Andrew的个人博客"><span class="site-name">Andrew的个人博客</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【SZU计算机网络实验】实现流式视频传输</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-19T15:15:00.000Z" title="发表于 2024-03-19 23:15:00">2024-03-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-19T15:14:03.230Z" title="更新于 2024-03-19 23:14:03">2024-03-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AE%9E%E9%AA%8C/">课程实验</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【SZU计算机网络实验】实现流式视频传输"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一百年没有更新博客了，都怪开学一堆杂活（x</p>
+<p>那就顺手把实验报告转到这边吧owo</p>
+<p>本实验为SZU原创实验，实验开发团队的老师和助教们都很有耐心。。大赞，环境没配好去群里问是秒回的</p>
+<p>相关资料：</p>
+<p>实验文档：<a target="_blank" rel="noopener" href="http://course.snrc.site/computer-networks/#">计算机网络课程综合实验平台 (snrc.site)</a></p>
+<h1 id="一、实验介绍"><a href="#一、实验介绍" class="headerlink" title="一、实验介绍"></a>一、实验介绍</h1><p>该实验主要实现了一个服务端和一个客户端。其中，服务端利用缓冲区逐段向客户端发送多个视频片段，并在客户端逐段接收，并利用已经设计好的播放器，在网页中播放连续的视频。</p>
+<h1 id="二、实验过程"><a href="#二、实验过程" class="headerlink" title="二、实验过程"></a>二、实验过程</h1><h2 id="0-环境搭建"><a href="#0-环境搭建" class="headerlink" title="0. 环境搭建"></a>0. 环境搭建</h2><p>实验文件中包含了压缩包exp1-lib.zip，exp-code.zip，cne.zip</p>
+<p>将其解压，并把前两个压缩包（exp1-lib.zip和exp-code.zip）解压后的文件置于一个目录下，于cne.zip解压出来的文件夹devcpp6中的<strong>devcppPortable.exe</strong>中打开client.c和server.c文件，选择编译环境为<strong>Computer-networks</strong></p>
+<p><img src="/img/loading.png" data-original="/img/2024/03/devenvir.png" alt="devenvir.png"></p>
+<h2 id="1-单文件视频传输"><a href="#1-单文件视频传输" class="headerlink" title="1. 单文件视频传输"></a>1. 单文件视频传输</h2><p>阅读代码发现实验文件中已经实现了：</p>
+<p>1）服务端的初始化阶段，包括创建套接字，绑定套接字和监听套接字，以及接收客户端下载请求和发送文件大小给客户端，发送文件结束符和关闭文件。</p>
+<p>2）客户端的初始化阶段，向服务器请求文件并接受文件的大小，检查文件结束符后将接收到的视频写入文件中</p>
+<p>我们需要实现的是：</p>
+<p>1）在服务端：</p>
+<p>将文件的内容循环读取到缓冲区中，再将缓冲区的内容发送给客户端，注意<strong>读到文件末尾可能无法完整填充整个缓冲区，需要做特判</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">     <span class="comment">// 发送视频片段</span></span><br><span class="line">     <span class="type">int</span> send_count = <span class="number">0</span>;</span><br><span class="line">     <span class="keyword">while</span> (send_count &lt; file_size)</span><br><span class="line">     &#123;</span><br><span class="line">         <span class="comment">/***************************************************************************************************/</span></span><br><span class="line">         <span class="comment">/**************************  任务1： 发送指定视频文件（按照固定大小buffer方式） ********************/</span></span><br><span class="line">         <span class="comment">/***************************************************************************************************/</span></span><br><span class="line">     	<span class="type">char</span> buffer[BUFFER_SIZE] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">     	  	</span><br><span class="line">     	<span class="type">int</span> bytes_read = (send_count + BUFFER_SIZE &lt;= file_size) ? BUFFER_SIZE : file_size - send_count;</span><br><span class="line">fread(buffer, bytes_read, <span class="number">1</span>, fp);</span><br><span class="line">     	</span><br><span class="line">     	bytes_sent = send(new_socket, buffer, bytes_read, <span class="number">0</span>);</span><br><span class="line">     	<span class="keyword">if</span> (bytes_sent &lt; <span class="number">0</span>)</span><br><span class="line">     		<span class="built_in">printf</span>(<span class="string">&quot;ERROR in send video\n&quot;</span>);</span><br><span class="line">     	</span><br><span class="line">     	send_count += bytes_sent;</span><br><span class="line">     	<span class="built_in">printf</span>(<span class="string">&quot;video send progress: %d / %d\n&quot;</span>, send_count, file_size);</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+<p>2）在客户端：</p>
+<p>接收服务端发送的数据并写入文件。文件末尾无法完整填充缓冲区的处理方式同服务端</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   <span class="type">int</span> recv_count = <span class="number">0</span>;</span><br><span class="line">   </span><br><span class="line">   <span class="keyword">while</span> (recv_count &lt; file_size)</span><br><span class="line">   &#123;		</span><br><span class="line">       <span class="comment">/************************************************************************/</span></span><br><span class="line">       <span class="comment">/***************** 任务3 ： 如何使用buffer接收视频文件？*****************/</span></span><br><span class="line">       <span class="comment">/************************************************************************/</span></span><br><span class="line">       </span><br><span class="line">       bytes_recv = (recv_count + BUFFER_SIZE &lt;= file_size) ? BUFFER_SIZE : file_size - recv_count;</span><br><span class="line">       bytes_recv = recv(sock, video_segement + recv_count, bytes_recv, <span class="number">0</span>);</span><br><span class="line">       </span><br><span class="line">recv_count += bytes_recv;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s recv progress: %d / %d\n&quot;</span>, req, recv_count, file_size);</span><br><span class="line">   &#125;    </span><br></pre></td></tr></table></figure>
+<h2 id="2-实现流式视频传输"><a href="#2-实现流式视频传输" class="headerlink" title="2. 实现流式视频传输"></a>2. 实现流式视频传输</h2><p>实现流式视频传输要求我们在客户端请求同一个视频的多个视频段，那就利用<strong>sprintf</strong>将指定视频名（包括<strong>视频名称-视频分辨率-视频码率</strong>）与<strong>视频段序号</strong>拼接在一起，在客户端循环请求并接收，在服务端循环发送。最后再在客户端调用player.h中设计好的函数，在网页中播放视频</p>
+<p>在客户端：</p>
+<p>调用<strong>StartStreamingServer()</strong> 初始化播放器等资源，在循环中利用sprintf构造请求的文件名</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">StartStreamingServer();</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> id = <span class="number">0</span>;id &lt; <span class="number">60</span>; ++id)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发送下载请求</span></span><br><span class="line">    <span class="type">int</span> bytes_sent = <span class="number">0</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> s_stop_byte = <span class="number">0xFF</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 视频文件名</span></span><br><span class="line">    <span class="type">char</span> req[REQUEST_SIZE] = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="comment">/******************************************************************/</span></span><br><span class="line">    <span class="comment">/***************** 任务2：如何按顺序选择视频文件？*****************/</span></span><br><span class="line">    <span class="comment">/******************************************************************/</span></span><br><span class="line">	<span class="built_in">sprintf</span>(req, <span class="string">&quot;ocean-1080p-8000k-%d.ts&quot;</span>, id);</span><br><span class="line"></span><br><span class="line">    bytes_sent = send(sock, req, REQUEST_SIZE, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (bytes_sent &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;ERROR in send\n&quot;</span>);</span><br><span class="line">    bytes_sent = send(sock, &amp;s_stop_byte, <span class="keyword">sizeof</span>(s_stop_byte), <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (bytes_sent &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;ERROR in send\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;send req: %s\n&quot;</span>, req);</span><br></pre></td></tr></table></figure>
+<p>接收完成时调用ReceiveSegment()将完整的视频段交付给播放器，等待播放<br>在结束阶段调用WaitEnd()等待视频播放完毕后关闭播放器</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">/***数据接收完成阶段***/</span></span><br><span class="line">	ReceiveSegment(video_segement, req, file_size);</span><br><span class="line">	</span><br><span class="line">    <span class="comment">// 释放内存</span></span><br><span class="line">    <span class="built_in">free</span>(video_segement);    </span><br><span class="line">	video_segement = <span class="literal">NULL</span>;</span><br><span class="line">&#125;	</span><br><span class="line">   <span class="comment">/*************************************************************************************/</span></span><br><span class="line">   <span class="comment">/*********任务2（扩展）：如何在视频流传输完成后，通知server结束视频传输？*************/</span></span><br><span class="line">   <span class="comment">/*************************************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/***结束阶段***/</span></span><br><span class="line">closesocket(sock);</span><br><span class="line">WSACleanup();</span><br><span class="line"></span><br><span class="line">WaitEnd();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="三、实验结果"><a href="#三、实验结果" class="headerlink" title="三、实验结果"></a>三、实验结果</h1><p>先编译运行server.c，服务端启动监听，如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Create Server Socket Success.</span><br><span class="line">Server Bind Port Success.</span><br><span class="line">Server Listening.....</span><br></pre></td></tr></table></figure>
+<p>后编译运行client.c，开始依次传输视频文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ocean-1080p-8000k-59.ts recv progress: 178176 / 181608</span><br><span class="line">ocean-1080p-8000k-59.ts recv progress: 179200 / 181608</span><br><span class="line">ocean-1080p-8000k-59.ts recv progress: 180224 / 181608</span><br><span class="line">ocean-1080p-8000k-59.ts recv progress: 181248 / *181608*</span><br><span class="line">ocean-1080p-8000k-59.ts recv progress: 181608 / 181608</span><br><span class="line">file_path .\download\ocean-1080p-8000k-59.ts</span><br></pre></td></tr></table></figure>
+<p>网页播放视频如下：</p>
+<p><img src="/img/loading.png" data-original="/img/2024/03/streamingplay.png" alt="streamingplay.png"></p>
+<p>帅帅帅</p>
+<p>（其实还有思考题，找时间再研究下</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>作者: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io">Andrew Wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>链接: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/">https://andreww1219.github.io/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/</a></span></div><!--.post-copyright__notice--><!--  span.post-copyright-meta--><!--    i.fas.fa-circle-exclamation.fa-fw--><!--    = _p('post.copyright.copyright_notice') + ": "span.post-copyright-info!= info--></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C%E8%AF%AD%E8%A8%80/">C语言</a><a class="post-meta__tags" href="/tags/TCP/">TCP</a></div><!--include includes/third-party/share/index.pug--></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/02/22/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3shell%20lab%E2%80%94%E2%80%94%E7%BC%96%E5%86%99%E8%87%AA%E5%B7%B1%E7%9A%84shell/" title="【CMU 15-213 CSAPP】详解shell lab——编写自己的shell"><img class="cover" src="/img/loading.png" data-original="/img/2024/02/%E5%B0%8F%E6%A1%83%E5%B0%8F%E7%BB%BF2.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【CMU 15-213 CSAPP】详解shell lab——编写自己的shell</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/02/05/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3lab1%E2%80%94%E2%80%94datalab/" title="【CMU 15-213 CSAPP】详解lab1——datalab"><img class="cover" src="/img/loading.png" data-original="/img/2024/02/%E5%B0%8F%E7%8B%90%E7%8B%B8.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-05</div><div class="title">【CMU 15-213 CSAPP】详解lab1——datalab</div></div></a></div><div><a href="/2024/02/18/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3cachelab%E2%80%94%E2%80%94%E6%A8%A1%E6%8B%9F%E7%BC%93%E5%AD%98%E3%80%81%E7%BC%96%E5%86%99%E7%BC%93%E5%AD%98%E5%8F%8B%E5%A5%BD%E4%BB%A3%E7%A0%81/" title="【CMU 15-213 CSAPP】详解cachelab——模拟缓存、编写缓存友好代码"><img class="cover" src="/img/loading.png" data-original="/img/2024/02/%E6%B8%B8%E6%88%8F%E9%83%A81.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-18</div><div class="title">【CMU 15-213 CSAPP】详解cachelab——模拟缓存、编写缓存友好代码</div></div></a></div><div><a href="/2024/02/22/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3shell%20lab%E2%80%94%E2%80%94%E7%BC%96%E5%86%99%E8%87%AA%E5%B7%B1%E7%9A%84shell/" title="【CMU 15-213 CSAPP】详解shell lab——编写自己的shell"><img class="cover" src="/img/loading.png" data-original="/img/2024/02/%E5%B0%8F%E6%A1%83%E5%B0%8F%E7%BB%BF2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-22</div><div class="title">【CMU 15-213 CSAPP】详解shell lab——编写自己的shell</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><a href="/"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info__name">Andrew Wang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%9E%E9%AA%8C%E4%BB%8B%E7%BB%8D"><span class="toc-text">一、实验介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B"><span class="toc-text">二、实验过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">0. 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%8D%95%E6%96%87%E4%BB%B6%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93"><span class="toc-text">1. 单文件视频传输</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93"><span class="toc-text">2. 实现流式视频传输</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="toc-text">三、实验结果</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/" title="【SZU计算机网络实验】实现流式视频传输"><img src="/img/loading.png" data-original="/img/2024/03/azusa_hifumi.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SZU计算机网络实验】实现流式视频传输"/></a><div class="content"><a class="title" href="/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/" title="【SZU计算机网络实验】实现流式视频传输">【SZU计算机网络实验】实现流式视频传输</a><time datetime="2024-03-19T15:15:00.000Z" title="发表于 2024-03-19 23:15:00">2024-03-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/02/22/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3shell%20lab%E2%80%94%E2%80%94%E7%BC%96%E5%86%99%E8%87%AA%E5%B7%B1%E7%9A%84shell/" title="【CMU 15-213 CSAPP】详解shell lab——编写自己的shell"><img src="/img/loading.png" data-original="/img/2024/02/%E5%B0%8F%E6%A1%83%E5%B0%8F%E7%BB%BF2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【CMU 15-213 CSAPP】详解shell lab——编写自己的shell"/></a><div class="content"><a class="title" href="/2024/02/22/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3shell%20lab%E2%80%94%E2%80%94%E7%BC%96%E5%86%99%E8%87%AA%E5%B7%B1%E7%9A%84shell/" title="【CMU 15-213 CSAPP】详解shell lab——编写自己的shell">【CMU 15-213 CSAPP】详解shell lab——编写自己的shell</a><time datetime="2024-02-21T16:30:00.000Z" title="发表于 2024-02-22 00:30:00">2024-02-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/02/18/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3cachelab%E2%80%94%E2%80%94%E6%A8%A1%E6%8B%9F%E7%BC%93%E5%AD%98%E3%80%81%E7%BC%96%E5%86%99%E7%BC%93%E5%AD%98%E5%8F%8B%E5%A5%BD%E4%BB%A3%E7%A0%81/" title="【CMU 15-213 CSAPP】详解cachelab——模拟缓存、编写缓存友好代码"><img src="/img/loading.png" data-original="/img/2024/02/%E6%B8%B8%E6%88%8F%E9%83%A81.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【CMU 15-213 CSAPP】详解cachelab——模拟缓存、编写缓存友好代码"/></a><div class="content"><a class="title" href="/2024/02/18/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3cachelab%E2%80%94%E2%80%94%E6%A8%A1%E6%8B%9F%E7%BC%93%E5%AD%98%E3%80%81%E7%BC%96%E5%86%99%E7%BC%93%E5%AD%98%E5%8F%8B%E5%A5%BD%E4%BB%A3%E7%A0%81/" title="【CMU 15-213 CSAPP】详解cachelab——模拟缓存、编写缓存友好代码">【CMU 15-213 CSAPP】详解cachelab——模拟缓存、编写缓存友好代码</a><time datetime="2024-02-17T18:10:00.000Z" title="发表于 2024-02-18 02:10:00">2024-02-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/02/13/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3attacklab%E2%80%94%E2%80%94%E7%94%A8%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5%E5%92%8CROP%E6%94%BB%E5%87%BB%E7%A8%8B%E5%BA%8F/" title="【CMU 15-213 CSAPP】详解attacklab——用代码注入和ROP攻击程序"><img src="/img/loading.png" data-original="/img/2024/02/%E6%B8%B8%E6%88%8F%E9%83%A82.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【CMU 15-213 CSAPP】详解attacklab——用代码注入和ROP攻击程序"/></a><div class="content"><a class="title" href="/2024/02/13/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3attacklab%E2%80%94%E2%80%94%E7%94%A8%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5%E5%92%8CROP%E6%94%BB%E5%87%BB%E7%A8%8B%E5%BA%8F/" title="【CMU 15-213 CSAPP】详解attacklab——用代码注入和ROP攻击程序">【CMU 15-213 CSAPP】详解attacklab——用代码注入和ROP攻击程序</a><time datetime="2024-02-13T15:25:00.000Z" title="发表于 2024-02-13 23:25:00">2024-02-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/02/10/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3lab2%E2%80%94%E2%80%94bomblab/" title="【CMU 15-213 CSAPP】详解lab2——bomblab"><img src="/img/loading.png" data-original="/img/2024/02/hifumi4.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【CMU 15-213 CSAPP】详解lab2——bomblab"/></a><div class="content"><a class="title" href="/2024/02/10/%E3%80%90CMU%2015-213%20CSAPP%E3%80%91%E8%AF%A6%E8%A7%A3lab2%E2%80%94%E2%80%94bomblab/" title="【CMU 15-213 CSAPP】详解lab2——bomblab">【CMU 15-213 CSAPP】详解lab2——bomblab</a><time datetime="2024-02-09T16:30:00.000Z" title="发表于 2024-02-10 00:30:00">2024-02-10</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Andrew Wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script></body></html>
