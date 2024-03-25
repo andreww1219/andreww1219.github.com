@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>机器学习笔记——LDA线性判别分析</title>
+      <link href="/2024/03/25/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94LDA%E7%BA%BF%E6%80%A7%E5%88%A4%E5%88%AB%E5%88%86%E6%9E%90/"/>
+      <url>/2024/03/25/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94LDA%E7%BA%BF%E6%80%A7%E5%88%A4%E5%88%AB%E5%88%86%E6%9E%90/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>机器学习的东西真是又多又杂啊，之前刷吴恩达就见过主成分分析，即PCA(Principle Component Analysis)，没见过线性判别分析，即LDA(Linear Discriminant Analysis)。才知道前者是对无标签数据作压缩的，而后者可以对有标签的二分类、多分类任务的数据作压缩。</p><p>本文主要讲述了LDA算法的推导，以及展示了LDA算法的代码实现和应用。</p><p>参考资料：</p><p>周志华《机器学习》，人称西瓜书</p><p>更详细的算法推导：<a href="https://zhuanlan.zhihu.com/p/140070299">机器学习算法推导&amp;手写实现03——线性判别分析 - 知乎 (zhihu.com)</a></p><h1 id="一、算法推导"><a href="#一、算法推导" class="headerlink" title="一、算法推导"></a>一、算法推导</h1><p>由前言可知，LDA相比于PCA，是用来处理<strong>有标签数据</strong>的，为了使压缩后的数据仍然能表示分类的情况，我们应该让<strong>同类的样本尽可能靠近，异类的样本尽可能远离</strong>。</p><p>数学表示为：给定数据集$ D = {x_i, y_i}_{i=1}^m $，该数据集共有$m$个样本，每个样本包含一个数据，即一个$n$维的向量$x_i$，以及一个标签，即一个数$y_i$，代表该数据点所在的类别。</p><p>当$y_i \in {0, 1}$，说明这是一个二分类任务，我们先从简单的二分类开始讨论。</p><h2 id="1-二分类"><a href="#1-二分类" class="headerlink" title="1. 二分类"></a>1. 二分类</h2><h3 id="1-1-优化目标"><a href="#1-1-优化目标" class="headerlink" title="1.1 优化目标"></a>1.1 优化目标</h3><p>接下来，我们要用数学语言来表示同类的样本尽可能靠近，异类的样本尽可能远离这两个任务。</p><p><strong>同类的样本尽可能靠近</strong>，也就是<strong>同类之间的方差要尽可能小</strong></p><p>设压缩前，两个类的协方差矩阵分别为$\Sigma_0$和$\Sigma_1$</p><p>那么，压缩后的两个类的协方差矩阵为$\omega^T \Sigma_0 \omega$和$\omega^T \Sigma_1 \omega$</p><p>定义“类内散度矩阵”（with-class scatter matrix）为</p><script type="math/tex; mode=display">S_{\omega} = \Sigma_0 + \Sigma_1  = \sum \limits_{x \in X_0} (x - \mu_0)^T + \sum \limits_{x \in X_1} (x - \mu_1)^T</script><p>那么，同类之间的方差要尽可能小，就是要<strong>最小化$\omega^T S_{\omega} \omega$</strong></p><p><strong>异类的样本尽可能远离</strong>，也就是<strong>异类样本的均值的差值要尽可能大</strong></p><p>设压缩前，两个类的均值分别为$\mu_0$和$\mu_1$</p><p>那么，压缩后的两个类的均值为$\omega^T \mu_0$和$\omega^T \mu_1$</p><p>定义“类间散度矩阵”（between-class scatter matrix）为</p><script type="math/tex; mode=display">S_b = (\mu_0 - \mu_1)(\mu_0 - \mu_1)^T</script><p>那么，异类的样本尽可能远离，就是要<strong>最大化$\omega^T S_b\omega$</strong></p><p>将上述两条件统一到一个式子，我们的优化目标就变为了</p><p><strong>最大化 $ J = \frac{\omega^T S_b\omega}{\omega^T S_{\omega} \omega} $</strong></p><h3 id="1-2-数学推导"><a href="#1-2-数学推导" class="headerlink" title="1.2 数学推导"></a>1.2 数学推导</h3><p>由于$J = \frac{\omega^T S_b\omega}{\omega^T S_{\omega} \omega}$分子分母都是关于$\omega$的二次项，因此，求解上述问题与$\omega$的大小无关，只与$\omega$的的方向有关。</p><p>我们不妨假设$\omega^T S_{\omega} \omega = 1$，问题转化为</p><script type="math/tex; mode=display">min_{\omega} \space -\omega^T S_b\omega</script><script type="math/tex; mode=display">st. \space \omega^T S_{\omega} \omega = 1</script><p>由拉格朗日乘子法，得</p><script type="math/tex; mode=display">L(\omega) = -\omega^T S_b\omega + \lambda (\omega^T S_{\omega} \omega - 1)</script><p>令 $ \frac{\partial L(\omega)}{\partial \omega} = -2 S_b \omega + 2 \lambda S_{\omega} \omega = 0$</p><p>得 $ S_b \omega = \lambda S_{\omega} \omega \space \space  $</p><p>又 $ S_b \omega =  (\mu_0 - \mu_1)(\mu_0 - \mu_1)^T \omega $，其中$(\mu_0 - \mu_1)^T \omega$可看作是个标量，因此$ S_b \omega $的方向恒与$ \mu_0 - \mu_1 $相同，不妨令</p><script type="math/tex; mode=display">S_b \omega = \lambda (\mu_0 - \mu_1)  \space \space</script><p>得</p><script type="math/tex; mode=display">S_{\omega} \omega = \mu_0 - \mu_1</script><script type="math/tex; mode=display">\omega = S_{\omega}^{-1} (\mu_0 - \mu_1)</script><p>在实践中，常常对$S_{\omega}$做奇异值分解：$ S_{\omega} = U \Sigma V^T$，故有$ S_{\omega}^{-1} = V \Sigma^{-1} U^T$，从而得到$S_{\omega}^{-1} $</p><h2 id="2-多分类"><a href="#2-多分类" class="headerlink" title="2. 多分类"></a>2. 多分类</h2><h3 id="2-1-问题求解"><a href="#2-1-问题求解" class="headerlink" title="2.1 问题求解"></a>2.1 问题求解</h3><p>将问题扩展到多分类，定义所有样本的均值为$\mu$，每个类对应的样本数量为$m_i$，那么重新定义“类间散度矩阵”为</p><script type="math/tex; mode=display">S_b = \sum\limits_{i=1}^N m_i (\mu_i - \mu) ( \mu_i - \mu )^T</script><p>设总共由$ N $个类，重新定义“类内散度矩阵”为</p><script type="math/tex; mode=display">S_{\omega} = \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (x - \mu_i) (x - \mu_i )^T</script><p>在上述二分类中，我们将样本投影到一维空间，也就是一条直线上，而在多分类中，我们将样本投影到$N - 1$维空间，记投影矩阵 $ W \in R^{d \times (N -1)}$，其中$ d $表示原样本的维度数。</p><p>同理可得</p><script type="math/tex; mode=display">S_b W = \lambda S_{\omega} W</script><script type="math/tex; mode=display">S_{\omega}^{-1} S_b W = \lambda W</script><p>因此$ W $的解是$ S_{\omega}^{-1} S_b $的最大$N - 1$个特征值所对应特征向量所组成的矩阵</p><h3 id="2-2-全局散度矩阵"><a href="#2-2-全局散度矩阵" class="headerlink" title="2.2 全局散度矩阵"></a>2.2 全局散度矩阵</h3><p>除了使用$S_b$和$S_{\omega}$作为度量的标准，多分类LDA还可以有多种不同的实现，引入“<strong>全局散度矩阵</strong>”</p><script type="math/tex; mode=display">S_t = \sum \limits_{i=1}^m (x_i - \mu)(x_i - \mu)^T</script><p>可以证明 $ S_t = S_b + S_{\omega} $，如下：</p><p>$ \begin{aligned}<br>S_b &amp;= \sum\limits_{i=1}^N m_i (\mu_i - \mu) ( \mu_i - \mu )^T \<br>&amp;= \sum\limits_{i=1}^N m_i (\mu_i \mu_i^T - \mu \mu_i^T - \mu_i \mu^T + \mu \mu^T)<br>\end{aligned}$</p><p>其中，$m_i \mu \mu_i^T == \sum\limits_{x \in X_i} \mu x^T $，$ m_i \mu_i \mu^T = \sum\limits_{x \in X_i} X \mu^T$，那么有</p><p>$ S_b =  \sum\limits_{i=1}^N \sum\limits_{x \in X_i} (\mu_i \mu_i^T -\mu x^T - x \mu^T + \mu \mu^T)$</p><p>又有</p><p>$ \begin{aligned}<br>S_{\omega} &amp;= \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (x - \mu_i) (x - \mu_i )^T  \<br>&amp;= \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (x x^T - \mu_i x^T - x \mu_i^T + \mu_i \mu_i^T)<br>\end{aligned}$</p><p>那么，</p><p>$ S_b + S_{\omega} = \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (x x^T -\mu x^T - x \mu^T + \mu \mu^T - \mu_i x^T - x \mu_i^T +  2 \mu_i \mu_i^T)$</p><p>其中，$ \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (- \mu_i x^T - x \mu_i^T +  2 \mu_i \mu_i^T) = 0$</p><p>则有</p><p>$ \begin{aligned}<br>S_b + S_{\omega} &amp;= \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (x x^T -\mu x^T - x \mu^T + \mu \mu^T) \<br>&amp;= \sum\limits_{i=1}^N \sum \limits_{x \in X_i} (x - \mu) (x - \mu)^T \<br>&amp;= \sum\limits_{i=1}^m  (x_i - \mu) (x_i - \mu)^T = S_t<br>\end{aligned} $</p><p>证毕</p><h2 id="3-等价模型表示"><a href="#3-等价模型表示" class="headerlink" title="3. 等价模型表示"></a>3. 等价模型表示</h2><p>以上的算法推导是基于$ max_{\omega} \frac{\omega^T S_b\omega}{\omega^T S_{\omega} \omega} $，或者说，基于$max_W \frac{ tr(W^T S_b W) }{ tr(W^T S_{\omega} W) }$，我们称之为LDA的除法模型。</p><p>实际上，LDA还有多种等价的模型表示，比如</p><p><strong>(1) 减法模型：</strong></p><script type="math/tex; mode=display">max_W tr(W^T S_b W) - tr(W^T S_{\omega} W)</script><script type="math/tex; mode=display">st. \space \space tr(W^T W) = 1</script><p>求解得到</p><script type="math/tex; mode=display">(S_{\omega} - S_b) W = \lambda W</script><p>即$W$是$S_{\omega} - S_b$前$N-1$个最大特征值对应的特征向量组成的矩阵</p><p><strong>(2) 除法正则模型：</strong></p><script type="math/tex; mode=display">max_W \frac{ tr(W^T S_b W) }{ tr(W^T S_{\omega} W) } + \lambda tr(W^T W)</script><script type="math/tex; mode=display">st. \space \space tr(W^T S_{\omega} W) = 1</script><p>由拉格朗日乘子法，得</p><script type="math/tex; mode=display">L = tr(W^T S_b W) + \lambda tr(W^T W) + \beta (tr(W^T S_{\omega} W) - 1)</script><script type="math/tex; mode=display">\frac{\partial L}{\partial W} = 2 S_b W + 2 \lambda W + 2 \beta S_{\omega} W = 0</script><p>得</p><script type="math/tex; mode=display">S_{\omega}^{-1}(S_b + \lambda I) W = -\beta W</script><p>即$W$是$S_{\omega}^{-1}(S_b + \lambda I)$前$N-1$个最大特征值对应的特征向量组成的矩阵</p><p><strong>(3) 减法正则模型：</strong></p><script type="math/tex; mode=display">max_W tr(W^T S_b W) - tr(W^T S_{\omega} W) - \lambda tr(W^T W)</script><script type="math/tex; mode=display">st. \space \space tr(W^T W) = 1</script><p>求得问题的解仍然是$S_{\omega} - S_b$前$N-1$个最大特征值对应的特征向量组成的矩阵</p><h1 id="二、代码示例"><a href="#二、代码示例" class="headerlink" title="二、代码示例"></a>二、代码示例</h1><p>大半都是gpt写的（</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">X, y = read_data(PATH)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 划分训练集和测试集</span></span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.1</span>, random_state=<span class="number">42</span>)</span><br><span class="line"></span><br><span class="line">accuracy_pca = []</span><br><span class="line">accuracy_lda = []</span><br><span class="line"></span><br><span class="line">n_components_range = <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">35</span>, <span class="number">2</span>)</span><br><span class="line"><span class="keyword">for</span> n_components <span class="keyword">in</span> n_components_range:</span><br><span class="line">    <span class="comment"># PCA</span></span><br><span class="line">    pca = PCA(n_components=n_components)</span><br><span class="line">    X_train_pca = pca.fit_transform(X_train)</span><br><span class="line">    X_test_pca = pca.transform(X_test)</span><br><span class="line">    knn_pca = KNeighborsClassifier()</span><br><span class="line">    knn_pca.fit(X_train_pca, y_train)</span><br><span class="line">    y_pred_pca = knn_pca.predict(X_test_pca)</span><br><span class="line">    accuracy_pca.append(accuracy_score(y_test, y_pred_pca))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># LDA</span></span><br><span class="line">    lda = LinearDiscriminantAnalysis(n_components=n_components)</span><br><span class="line">    X_train_lda = lda.fit_transform(X_train, y_train)</span><br><span class="line">    X_test_lda = lda.transform(X_test)</span><br><span class="line">    knn_lda = KNeighborsClassifier()</span><br><span class="line">    knn_lda.fit(X_train_lda, y_train)</span><br><span class="line">    y_pred_lda = knn_lda.predict(X_test_lda)</span><br><span class="line">    accuracy_lda.append(accuracy_score(y_test, y_pred_lda))</span><br><span class="line"></span><br><span class="line">fig, ax = plt.subplots()</span><br><span class="line">ax.plot(n_components_range, accuracy_pca, label=<span class="string">&#x27;PCA&#x27;</span>)</span><br><span class="line">ax.plot(n_components_range, accuracy_lda, label=<span class="string">&#x27;LDA&#x27;</span>)</span><br><span class="line">ax.set_xlabel(<span class="string">&#x27;n_components&#x27;</span>)</span><br><span class="line">ax.set_ylabel(<span class="string">&#x27;Accuracy&#x27;</span>)</span><br><span class="line">ax.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure><p>在ORL数据集的测试结果如下：</p><p><img src="/img/2024/03/LDA.png" alt="image.png"></p><p>其实可以再探讨一下减法模型还有正则模型的性能，但是sklearn貌似不支持(?)，得手搓，急着交作业就没再搞了。。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 人工智能 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 机器学习 </tag>
+            
+            <tag> PCA </tag>
+            
+            <tag> LDA </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【SZU计算机网络实验】实现流式视频传输</title>
       <link href="/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/"/>
       <url>/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/</url>
@@ -217,9 +246,9 @@
             
             <tag> 数据库 </tag>
             
-            <tag> SQL </tag>
-            
             <tag> 关系型数据库 </tag>
+            
+            <tag> SQL </tag>
             
         </tags>
       
@@ -505,9 +534,9 @@
             
             <tag> 机器学习 </tag>
             
-            <tag> SVM </tag>
-            
             <tag> PCA </tag>
+            
+            <tag> SVM </tag>
             
             <tag> K-Means </tag>
             
@@ -569,9 +598,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 梯度下降 </tag>
-            
             <tag> 逻辑回归 </tag>
+            
+            <tag> 梯度下降 </tag>
             
         </tags>
       
