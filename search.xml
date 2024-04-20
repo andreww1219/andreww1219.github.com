@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>机器学习笔记——浅析L2,1范数正则化的线性回归</title>
+      <link href="/2024/04/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%B5%85%E6%9E%90L2,1%E8%8C%83%E6%95%B0%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/"/>
+      <url>/2024/04/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%B5%85%E6%9E%90L2,1%E8%8C%83%E6%95%B0%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>嘻嘻，刚开始搓逾期了快两周的线性回归实验报告，为了让报告稍微不那么平淡不得不啃论文。</p><p>本文从最基本的线性回归开始，对比不同正则化方法的特点和作用，推广到多任务问题并引出L2,1范数正则化，卑微小采购尝试去理解论文是如何思考和优化问题（</p><p>参考资料：</p><p>[1] <a href="https://juejin.cn/post/7322669043180322867">一文讲清楚线性回归(Linear Regression)、逻辑回归（Logistic Regression） - 掘金 (juejin.cn)</a></p><p>[2]<a href="https://blog.csdn.net/weixin_41960890/article/details/104891561">一篇文章完全搞懂正则化（Regularization）-CSDN博客</a></p><p>[3] <a href="https://proceedings.neurips.cc/paper/2010/file/09c6c3783b4a70054da74f2538ed47c6-Paper.pdf">Efficient and Robust Feature Selection via Joint ℓ2,1-Norms Minimization (neurips.cc)</a></p><p>[4] <a href="https://zhuanlan.zhihu.com/p/498313101">L21范数用于多任务特征选择的一些思考 - 知乎 (zhihu.com)</a></p><h1 id="一、线性回归回顾"><a href="#一、线性回归回顾" class="headerlink" title="一、线性回归回顾"></a>一、线性回归回顾</h1><h2 id="1-无正则化项"><a href="#1-无正则化项" class="headerlink" title="1. 无正则化项"></a>1. 无正则化项</h2><p>在最简单的线性回归问题[1]中，每个样本$x^{(i)} \in R^n$所对应的的标签$y$是一个值，因此用于预测的参数是一个向量$\theta \in R^n$，即</p><script type="math/tex; mode=display">\hat{y}^{(i)} = \theta^T x^{(i)} = (x^{(i)})^T \theta</script><p>记所有的样本组成一个矩阵$X = (x^{(1)}, …, x^{(m)})^T, X \in R^{m \times n}$，所有的预测值组成一个向量$\hat{y} \in R^m$，则有</p><script type="math/tex; mode=display">\hat{y} = X \theta</script><p>在此类问题中，常用梯度下降法或正规方程法求解使预测值最接近于标签的参数向量$\theta$[1]，以及添加正则化项防止过拟合</p><h2 id="2-带正则化项"><a href="#2-带正则化项" class="headerlink" title="2. 带正则化项"></a>2. 带正则化项</h2><p>在[2]中，提到了常见的正则化项包括L1正则化和L2正则化如下</p><p>L1正则化的线性回归问题：</p><script type="math/tex; mode=display">argmin_\theta \frac{1}{2m}\sum_{i=1}^m (\theta^T x^{(i)} - y^{(i)})^2 + \lambda \| \theta \|_1</script><script type="math/tex; mode=display">argmin_\theta \frac{1}{2m} (X\theta - y)^T(X\theta - y) + \lambda \| \theta \|_1</script><p>其中，</p><p>向量的L1范数指： $| \theta |_1 = \sum\limits_{i=1}^n  |\theta_i|$</p><p>L2正则化的线性回归问题：</p><script type="math/tex; mode=display">argmin_\theta \frac{1}{2m}\sum_{i=1}^m (\theta^T x^{(i)} - y^{(i)})^2 + \frac{1}{2} \lambda \| \theta \|_2^2</script><script type="math/tex; mode=display">argmin_\theta \frac{1}{2m} (X\theta - y)^T(X\theta - y) + \frac{1}{2} \lambda \| \theta \|_2^2</script><p>其中，</p><p>向量的L2范数指：$| \theta |_2 = (\sum\limits_{i=1}^n  |\theta_i|^2)^{\frac{1}{2}}$</p><p><strong>两者的区别</strong>是，当我们进行梯度下降，对损失函数求导时，</p><p>L2正则化项的偏导为$\lambda \sum\limits_{i=1}^n | \theta_i |$，对绝对值较大的$\theta_i$，会给予较重的惩罚。由此造成的结果就是，$\theta_i$的<strong>绝对值会尽可能小</strong></p><p>L1正则化项的偏导为$\lambda$，也就是说，无论$\theta_i$的大小，L1正则化项都给予相同的惩罚。由此造成的结果就是，许多$\theta_i$会<strong>尽可能变为0</strong>，从此达到稀疏化和特征选择的作用</p><h1 id="二、多任务问题"><a href="#二、多任务问题" class="headerlink" title="二、多任务问题"></a>二、多任务问题</h1><h2 id="1-定义损失函数"><a href="#1-定义损失函数" class="headerlink" title="1. 定义损失函数"></a>1. 定义损失函数</h2><p>当遇到多任务问题[2]时，即每个样本x对应的y不只是一个值，而是一个d维向量，即$y^{(i)} \in R^d, Y \in R^{m \times d}$时，用于预测的参数需要是一个矩阵$\Theta \in R^{n \times d}$，使得</p><script type="math/tex; mode=display">\hat{y}^{(i)} = \Theta^T x^{(i)}</script><script type="math/tex; mode=display">\hat{Y} = X \Theta</script><p>由于前面预测值和真实值都是确定的一个值，使用平方误差作为损失函数。而如今预测值和真实值都是向量，于是使用2范数作为基本的损失函数：</p><script type="math/tex; mode=display">J(\Theta) = \sum\limits_{i=1}^m \| \Theta^T x^{(i)} - y^{(i)} \|_2^2</script><p>论文[3]中将损失函数定义为另一种更为鲁棒的形式：</p><script type="math/tex; mode=display">J(\Theta) = \sum\limits_{i=1}^m \| \Theta^T x^{(i)} - y^{(i)} \|_2</script><h2 id="2-引入正则化项"><a href="#2-引入正则化项" class="headerlink" title="2. 引入正则化项"></a>2. 引入正则化项</h2><p>如果把$X$看作$n$个列向量排成一行，那么每个列向量就是一个特征。</p><p>把$\Theta$看作$n$个行向量排成一列，那么每一行就是对每个特征作用的参数</p><p>故，如果想在这里达到稀疏化，也就是剔除掉多余特征的作用，就需要将$\Theta$的某几行尽可能全部置零</p><p>由此引出带L2,1范数正则化项的损失函数：</p><script type="math/tex; mode=display">J(\Theta) = \sum\limits_{i=1}^m \| \Theta^T x^{(i)} - y^{(i)} \|_2 + \lambda  \sum\limits_{i=1}^n \sqrt{ \sum\limits_{j=1}^d \Theta_{i, j} ^2}</script><p>根据L2,1范数的定义：</p><script type="math/tex; mode=display">\| W \|_{2,1} = \sum\limits_{i=1}^n \sqrt{ \sum\limits_{j=1}^d W_{i, j} ^2}</script><p>则有</p><script type="math/tex; mode=display">J(\Theta) = \| X\Theta - Y \|_{2,1} + \lambda \| \Theta \|_{2,1}</script><p>可见，L2,1范数就是对行求2范数后得到的结果作为一个向量再求1范数。<strong>外层的1范数制约部分行的2范数需要为0，也就是一整行都为0，从而起到特征筛选的作用</strong>[4]</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 人工智能 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 机器学习 </tag>
+            
+            <tag> 线性回归 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Pandas数据分析学习笔记</title>
       <link href="/2024/04/17/Pandas%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
       <url>/2024/04/17/Pandas%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
