@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Apache JMeter进行TCP并发压力测试初尝试 | Andrew的个人博客</title><meta name="author" content="Andrew Wang"><meta name="copyright" content="Andrew Wang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言由于互联网编程实验二第三题要求比较使用线程池与否的服务器的并发性能，遂检索信息并了解到Apache JMeter这个工具 本文主要介绍了在已有Java JDK的情况下对Apache JMeter的安装及配置，以及利用JMeter进行TCP压力测试 一、安装及配置先在官网下载压缩包：Apache JMeter - Download Apache JMeter  将文件apache-jmeter-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache JMeter进行TCP并发压力测试初尝试">
+<meta property="og:url" content="https://andreww1219.github.io/2024/04/25/Apache%20JMeter%E8%BF%9B%E8%A1%8CTCP%E5%B9%B6%E5%8F%91%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E5%88%9D%E5%B0%9D%E8%AF%95/index.html">
+<meta property="og:site_name" content="Andrew的个人博客">
+<meta property="og:description" content="前言由于互联网编程实验二第三题要求比较使用线程池与否的服务器的并发性能，遂检索信息并了解到Apache JMeter这个工具 本文主要介绍了在已有Java JDK的情况下对Apache JMeter的安装及配置，以及利用JMeter进行TCP压力测试 一、安装及配置先在官网下载压缩包：Apache JMeter - Download Apache JMeter  将文件apache-jmeter-">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://andreww1219.github.io/img/2024/04/toki4.jpg">
+<meta property="article:published_time" content="2024-04-25T07:35:00.000Z">
+<meta property="article:modified_time" content="2024-04-25T07:34:08.318Z">
+<meta property="article:author" content="Andrew Wang">
+<meta property="article:tag" content="TCP">
+<meta property="article:tag" content="并发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://andreww1219.github.io/img/2024/04/toki4.jpg"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://andreww1219.github.io/2024/04/25/Apache%20JMeter%E8%BF%9B%E8%A1%8CTCP%E5%B9%B6%E5%8F%91%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E5%88%9D%E5%B0%9D%E8%AF%95/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.12.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Apache JMeter进行TCP并发压力测试初尝试',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-04-25 15:34:08'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/2024/04/toki4.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Andrew的个人博客"><span class="site-name">Andrew的个人博客</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 博客</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/andreww1219"><span> GitHub</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://juejin.cn/user/3309987442983911"><span> 掘金</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Apache JMeter进行TCP并发压力测试初尝试</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-04-25T07:35:00.000Z" title="发表于 2024-04-25 15:35:00">2024-04-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-04-25T07:34:08.318Z" title="更新于 2024-04-25 15:34:08">2024-04-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E8%83%BD/">开发技能</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Apache JMeter进行TCP并发压力测试初尝试"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>由于互联网编程实验二第三题要求比较<strong>使用线程池与否</strong>的服务器的并发性能，遂检索信息并了解到Apache JMeter这个工具</p>
+<p>本文主要介绍了在已有Java JDK的情况下对Apache JMeter的安装及配置，以及利用JMeter进行TCP压力测试</p>
+<h1 id="一、安装及配置"><a href="#一、安装及配置" class="headerlink" title="一、安装及配置"></a>一、安装及配置</h1><p>先在官网下载压缩包：<a target="_blank" rel="noopener" href="https://jmeter.apache.org/download_jmeter.cgi">Apache JMeter - Download Apache JMeter</a></p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/0.png" alt="img.png"></p>
+<p>将文件apache-jmeter-5.6.3.zip解压到自己选择的目录中</p>
+<p>在根目录下，找到bin文件夹，进入文件夹中，找到jmeter.bat，双击即可打开软件</p>
+<h1 id="二、TCP服务器"><a href="#二、TCP服务器" class="headerlink" title="二、TCP服务器"></a>二、TCP服务器</h1><p>编写Java代码，在Server类的main函数中，指定一个端口作为服务器端口，并在while死循环中不断接收客户端的请求，对于每一个请求新开一个线程ThreadServer，并在其中处理请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Server</span> &#123;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span> <span class="variable">PORT</span> <span class="operator">=</span> <span class="number">9000</span>;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span> <span class="variable">MAX_POOL</span> <span class="operator">=</span> <span class="number">100</span>;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;  </span><br><span class="line">        <span class="type">ServerSocket</span> <span class="variable">server</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerSocket</span>(PORT);  </span><br><span class="line"></span><br><span class="line">        <span class="comment">// without thread pool</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;  </span><br><span class="line">            <span class="type">Socket</span> <span class="variable">accept</span> <span class="operator">=</span> server.accept();  </span><br><span class="line">            <span class="type">Thread</span> <span class="variable">thread</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">ThreadServer</span>(accept));  </span><br><span class="line">            thread.start();  </span><br><span class="line">        &#125;  </span><br><span class="line"></span><br><span class="line">        <span class="comment">// with thread pool </span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// ExecutorService service = Executors.newFixedThreadPool(MAX_POOL);  </span></span><br><span class="line">        <span class="comment">// while (true) &#123;  </span></span><br><span class="line">        <span class="comment">//   Socket accept = server.accept();  </span></span><br><span class="line">        <span class="comment">//   service.submit(new ThreadServer(accept));  </span></span><br><span class="line">        <span class="comment">// &#125;  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码中将服务器分为两种模式，第一段为没有线程池的模式，第二段为使用线程池的模式。通过分别注释并重新编译运行来启动不同模式的服务器</p>
+<p>为了简化服务端和客户端的交互，我们在ThreadServer中仅仅打印连接成功以及断开连接的信息，而不进行多余的通信，如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadServer</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span>&#123;  </span><br><span class="line">    Socket socket;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span> <span class="variable">BUFFER_SIZE</span> <span class="operator">=</span> <span class="number">1024</span>;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">String</span> <span class="variable">EXIT_STR</span> <span class="operator">=</span> <span class="string">&quot;exit&quot;</span>;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ThreadServer</span><span class="params">(Socket socket)</span>&#123;  </span><br><span class="line">        <span class="built_in">this</span>.socket = socket;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span>&#123;  </span><br><span class="line">        <span class="keyword">try</span>&#123;  </span><br><span class="line">            System.out.println(<span class="string">&quot;connection start&quot;</span>);  </span><br><span class="line">            <span class="type">OutputStream</span> <span class="variable">out</span> <span class="operator">=</span> socket.getOutputStream();  </span><br><span class="line">            out.write(<span class="string">&quot;connect successfully&quot;</span>.getBytes());  </span><br><span class="line">            <span class="comment">// echo service  </span></span><br><span class="line">            <span class="comment">// InputStream in = socket.getInputStream();  </span></span><br><span class="line">            <span class="comment">// byte[] inBytes = new byte[BUFFER_SIZE];  </span></span><br><span class="line">            <span class="comment">// int len;  </span></span><br><span class="line">            <span class="comment">// while((len = in.read(inBytes)) != 0)&#123;  </span></span><br><span class="line">            <span class="comment">//   String str = new String(inBytes, 0, len);  </span></span><br><span class="line">            <span class="comment">//   if(str.equals(EXIT_STR))  </span></span><br><span class="line">            <span class="comment">//     break;  </span></span><br><span class="line">            <span class="comment">//   System.out.println(&quot;received: &quot; + str);  </span></span><br><span class="line">            <span class="comment">//   out.write(str.getBytes());  </span></span><br><span class="line">            <span class="comment">// &#125;  </span></span><br><span class="line">            System.out.println(<span class="string">&quot;connection end&quot;</span>);  </span><br><span class="line">            socket.close();  </span><br><span class="line">        &#125;<span class="keyword">catch</span> (IOException e)&#123;  </span><br><span class="line">            e.printStackTrace();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注释部分是提供echo服务，需要客户端同步实现，在本题中无需使用，客户端参考以下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">String</span> <span class="variable">SERVER_HOST</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span> <span class="variable">SERVER_PORT</span> <span class="operator">=</span> <span class="number">9000</span>;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span> <span class="variable">BUFFER_SIZE</span> <span class="operator">=</span> <span class="number">1024</span>;  </span><br><span class="line">    <span class="keyword">static</span> <span class="type">String</span> <span class="variable">EXIT_STR</span> <span class="operator">=</span> <span class="string">&quot;exit&quot;</span>;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;  </span><br><span class="line">        <span class="type">Socket</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(SERVER_HOST, SERVER_PORT);  </span><br><span class="line">        <span class="type">Scanner</span> <span class="variable">scanner</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(System.in);  </span><br><span class="line">        <span class="type">OutputStream</span> <span class="variable">out</span> <span class="operator">=</span> client.getOutputStream();  </span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> client.getInputStream();  </span><br><span class="line">        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[BUFFER_SIZE];  </span><br><span class="line"></span><br><span class="line">        <span class="comment">// echo  </span></span><br><span class="line">        <span class="keyword">while</span>(scanner.hasNextLine())&#123;  </span><br><span class="line">            <span class="type">String</span> <span class="variable">lineOfWord</span> <span class="operator">=</span> scanner.nextLine();  </span><br><span class="line">            out.write(lineOfWord.getBytes());  </span><br><span class="line">            <span class="keyword">if</span>(lineOfWord.equals(EXIT_STR))  </span><br><span class="line">                <span class="keyword">break</span>;  </span><br><span class="line">            <span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> in.read(buffer);  </span><br><span class="line">            System.out.println(<span class="string">&quot;echo: &quot;</span> + <span class="keyword">new</span> <span class="title class_">String</span>(buffer, <span class="number">0</span>, len));  </span><br><span class="line">        &#125;  </span><br><span class="line">        client.close();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="三、并发测试"><a href="#三、并发测试" class="headerlink" title="三、并发测试"></a>三、并发测试</h1><h2 id="1-创建测试计划"><a href="#1-创建测试计划" class="headerlink" title="1. 创建测试计划"></a>1. 创建测试计划</h2><p>打开JMeter，右键单击测试计划(test plan)，一直选择到新建线程组，如下</p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/1.png" alt="img.png"></p>
+<p>右键单击新建的线程组，分别新建TCP Sampler和Response Time Graph，分别用于TCP连接以及输出响应时间与时间的折线图</p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/2.png" alt="img.png"></p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/3.png" alt="img.png"></p>
+<p>注意到TCP Sampler属于Sampler模块，我们也可在此模块中选择HTTP Request进行HTTP请求的测试；Response Time Graph属于Listener模块，我们可以在此模块中选择Aggregate Report输出测试的聚合报告，包括响应时间的平均值、最小值，以及吞吐量等</p>
+<p>在TCP Sampler中，指定服务器的地址及端口号如下</p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/4.png" alt="img.png"></p>
+<p>在Response Time Graph指定记录的间隔，单位为ms，这里设置为1000</p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/5.png" alt="img.png"></p>
+<h2 id="2-正式测试"><a href="#2-正式测试" class="headerlink" title="2. 正式测试"></a>2. 正式测试</h2><p>首先启动服务端</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">D:\<span class="title">idea</span> <span class="title">project</span>\<span class="title">internetprog</span>\<span class="title">exp2</span>\<span class="title">exp2</span>\<span class="title">src</span>&gt;<span class="title">javac</span> <span class="title">Server.java</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">D</span>:\<span class="title">idea</span> <span class="title">project</span>\<span class="title">internetprog</span>\<span class="title">exp2</span>\<span class="title">exp2</span>\<span class="title">src</span>&gt;<span class="title">java</span> <span class="title">Server</span></span></span><br></pre></td></tr></table></figure>
+<p>单击Thread Group，不断更改以下几个参数，测试不同程度的并发下服务的响应时间</p>
+<p><img src="/img/loading.png" data-original="/img/2024/04/intern2/6.png" alt="img.png"></p>
+<p>其中cd</p>
+<ol>
+<li>Number of Threads即创建的线程数</li>
+<li>Ramp-up period即在多长时间内创建以上线程数，单位为s</li>
+<li>Loop Count即执行的次数，勾选Infinite代表无限次执行</li>
+</ol>
+<p>在本例中，我选择固定Ramp-up period为1，Loop Count为5，修改Number of Threads依次为2000、4000、6000、8000以及10000，分别对比在有无线程池的服务器中，出现<strong>较长延迟的响应时间</strong>。每种情况分别测试3~5次。</p>
+<p>测试结果如下</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>线程数</th>
+<th>无线程池</th>
+<th>有线程池</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2000</td>
+<td>1ms内</td>
+<td>1ms内</td>
+</tr>
+<tr>
+<td>4000</td>
+<td>1s内</td>
+<td>1s内</td>
+</tr>
+<tr>
+<td>6000</td>
+<td>2s内</td>
+<td>2s内</td>
+</tr>
+<tr>
+<td>8000</td>
+<td>4s ~ 8s</td>
+<td>3s ~ 6s</td>
+</tr>
+<tr>
+<td>10000</td>
+<td>10s ~ 16s</td>
+<td>3s ~ 7s</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>可以看出，当并发压力增大时，无线程池出现的长延迟响应时间，相比有线程池的情况增长要快</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>作者: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io">Andrew Wang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>链接: </span><span class="post-copyright-info"><a href="https://andreww1219.github.io/2024/04/25/Apache%20JMeter%E8%BF%9B%E8%A1%8CTCP%E5%B9%B6%E5%8F%91%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E5%88%9D%E5%B0%9D%E8%AF%95/">https://andreww1219.github.io/2024/04/25/Apache%20JMeter%E8%BF%9B%E8%A1%8CTCP%E5%B9%B6%E5%8F%91%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E5%88%9D%E5%B0%9D%E8%AF%95/</a></span></div><!--.post-copyright__notice--><!--  span.post-copyright-meta--><!--    i.fas.fa-circle-exclamation.fa-fw--><!--    = _p('post.copyright.copyright_notice') + ": "span.post-copyright-info!= info--></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/TCP/">TCP</a><a class="post-meta__tags" href="/tags/%E5%B9%B6%E5%8F%91/">并发</a></div><!--include includes/third-party/share/index.pug--></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/04/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%B5%85%E6%9E%90L2,1%E8%8C%83%E6%95%B0%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/" title="机器学习笔记——浅析L2,1范数正则化的线性回归"><img class="cover" src="/img/loading.png" data-original="/img/2024/04/KEY.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">机器学习笔记——浅析L2,1范数正则化的线性回归</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/03/19/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E6%B5%81%E5%BC%8F%E8%A7%86%E9%A2%91%E4%BC%A0%E8%BE%93/" title="【SZU计算机网络实验】实现流式视频传输"><img class="cover" src="/img/loading.png" data-original="/img/2024/03/azusa_hifumi.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-19</div><div class="title">【SZU计算机网络实验】实现流式视频传输</div></div></a></div><div><a href="/2024/04/09/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E7%A0%81%E7%8E%87%E8%87%AA%E9%80%82%E5%BA%94%E4%BC%A0%E8%BE%93/" title="【SZU计算机网络实验】实现码率自适应传输"><img class="cover" src="/img/loading.png" data-original="/img/2024/04/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF3.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">【SZU计算机网络实验】实现码率自适应传输</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><a href="/"><img src="/img/loading.png" data-original="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info__name">Andrew Wang</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-text">一、安装及配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81TCP%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text">二、TCP服务器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%B9%B6%E5%8F%91%E6%B5%8B%E8%AF%95"><span class="toc-text">三、并发测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E6%B5%8B%E8%AF%95%E8%AE%A1%E5%88%92"><span class="toc-text">1. 创建测试计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%AD%A3%E5%BC%8F%E6%B5%8B%E8%AF%95"><span class="toc-text">2. 正式测试</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/04/25/Apache%20JMeter%E8%BF%9B%E8%A1%8CTCP%E5%B9%B6%E5%8F%91%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E5%88%9D%E5%B0%9D%E8%AF%95/" title="Apache JMeter进行TCP并发压力测试初尝试"><img src="/img/loading.png" data-original="/img/2024/04/toki4.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Apache JMeter进行TCP并发压力测试初尝试"/></a><div class="content"><a class="title" href="/2024/04/25/Apache%20JMeter%E8%BF%9B%E8%A1%8CTCP%E5%B9%B6%E5%8F%91%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E5%88%9D%E5%B0%9D%E8%AF%95/" title="Apache JMeter进行TCP并发压力测试初尝试">Apache JMeter进行TCP并发压力测试初尝试</a><time datetime="2024-04-25T07:35:00.000Z" title="发表于 2024-04-25 15:35:00">2024-04-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%B5%85%E6%9E%90L2,1%E8%8C%83%E6%95%B0%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/" title="机器学习笔记——浅析L2,1范数正则化的线性回归"><img src="/img/loading.png" data-original="/img/2024/04/KEY.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机器学习笔记——浅析L2,1范数正则化的线性回归"/></a><div class="content"><a class="title" href="/2024/04/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%B5%85%E6%9E%90L2,1%E8%8C%83%E6%95%B0%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/" title="机器学习笔记——浅析L2,1范数正则化的线性回归">机器学习笔记——浅析L2,1范数正则化的线性回归</a><time datetime="2024-04-20T09:05:00.000Z" title="发表于 2024-04-20 17:05:00">2024-04-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/17/Pandas%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="Pandas数据分析学习笔记"><img src="/img/loading.png" data-original="/img/2024/04/%E6%98%9F%E9%87%8E1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pandas数据分析学习笔记"/></a><div class="content"><a class="title" href="/2024/04/17/Pandas%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="Pandas数据分析学习笔记">Pandas数据分析学习笔记</a><time datetime="2024-04-17T07:40:00.000Z" title="发表于 2024-04-17 15:40:00">2024-04-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E7%A0%81%E7%8E%87%E8%87%AA%E9%80%82%E5%BA%94%E4%BC%A0%E8%BE%93/" title="【SZU计算机网络实验】实现码率自适应传输"><img src="/img/loading.png" data-original="/img/2024/04/%E9%98%BF%E9%87%8C%E4%B9%8C%E6%96%AF3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【SZU计算机网络实验】实现码率自适应传输"/></a><div class="content"><a class="title" href="/2024/04/09/%E3%80%90SZU%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E3%80%91%E5%AE%9E%E7%8E%B0%E7%A0%81%E7%8E%87%E8%87%AA%E9%80%82%E5%BA%94%E4%BC%A0%E8%BE%93/" title="【SZU计算机网络实验】实现码率自适应传输">【SZU计算机网络实验】实现码率自适应传输</a><time datetime="2024-04-09T08:40:00.000Z" title="发表于 2024-04-09 16:40:00">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/03/25/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94LDA%E7%BA%BF%E6%80%A7%E5%88%A4%E5%88%AB%E5%88%86%E6%9E%90/" title="机器学习笔记——LDA线性判别分析"><img src="/img/loading.png" data-original="/img/2024/03/%E5%85%94%E5%AD%90%E5%B0%8F%E9%98%9F5.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机器学习笔记——LDA线性判别分析"/></a><div class="content"><a class="title" href="/2024/03/25/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94LDA%E7%BA%BF%E6%80%A7%E5%88%A4%E5%88%AB%E5%88%86%E6%9E%90/" title="机器学习笔记——LDA线性判别分析">机器学习笔记——LDA线性判别分析</a><time datetime="2024-03-25T02:45:00.000Z" title="发表于 2024-03-25 10:45:00">2024-03-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Andrew Wang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.12.0"></script><script src="/js/main.js?v=4.12.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.32/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.12.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script></body></html>
