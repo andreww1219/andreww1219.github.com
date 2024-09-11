@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>【设计模式】UML类图和六大设计原则</title>
+      <link href="/2024/09/11/%E3%80%90%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%91UML%E7%B1%BB%E5%9B%BE%E5%92%8C%E5%85%AD%E5%A4%A7%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/"/>
+      <url>/2024/09/11/%E3%80%90%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E3%80%91UML%E7%B1%BB%E5%9B%BE%E5%92%8C%E5%85%AD%E5%A4%A7%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在实践中经常看到工厂模式、观察者模式等字眼，渐觉设计模式的重要性，于是开刷设计模式。</p><p>本文讲述了<strong>UML类图</strong>以及<strong>设计模式的六大原则</strong></p><p>参考资料：</p><p>课程视频：<a href="https://www.bilibili.com/video/BV1Np4y1z7BU">黑马程序员Java设计模式</a></p><h1 id="一、UML类图"><a href="#一、UML类图" class="headerlink" title="一、UML类图"></a>一、UML类图</h1><h2 id="1-类和接口的表示方式"><a href="#1-类和接口的表示方式" class="headerlink" title="1. 类和接口的表示方式"></a>1. 类和接口的表示方式</h2><p><img src="/img/2024/09/pattern1/0.png" alt="image.png"></p><p>如图所示，在 UML 类图中，第一栏为类的名称，第二栏为类的属性(field)，第三栏为类的方法(method)</p><p>属性/方法之前的 - + # 表示访问权限:<br>- 表示 private<br>+ 表示 public<br># 表示 protected</p><p>属性的完整表示方式是: <strong>可见性 名称 :类型 [= 缺省值]</strong><br>方法的完整表示方式是: <strong>可见性 名称(参数列表)[:返回类型]</strong></p><p>接口图 和 类图 的主要区别是顶端有 \&lt;\<interface\>></p><h2 id="2-关联和双向关联"><a href="#2-关联和双向关联" class="headerlink" title="2. 关联和双向关联"></a>2. 关联和双向关联</h2><p><strong>关联</strong>关系表示存在<strong>对象的引用</strong>，如 A 类中某一个成员变量的类型为 B 类，那么 A 类依赖于 B 类</p><p><img src="/img/2024/09/pattern1/1.png" alt="image.png"></p><p><strong>关联</strong>关系使用 <strong>实心箭头</strong> 表示</p><p><img src="/img/2024/09/pattern1/2.png" alt="image.png"></p><p><strong>双向关联</strong>使用 <strong>横线</strong> 表示</p><h2 id="3-组合和聚合"><a href="#3-组合和聚合" class="headerlink" title="3. 组合和聚合"></a>3. 组合和聚合</h2><p><strong>组合</strong> 和 <strong>聚合</strong> 都是关联的特例，强调整体和部分的关系，在转换为关系模型时跟关联没有区别，但是在<br>UML 中的描述存在语义上的区别。</p><h3 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h3><p>组合 中的整体和部分具有强依赖，<strong>整体的对象负责部分的对象的生命周期</strong>，如鸟和翅膀</p><p><img src="/img/2024/09/pattern1/3.png" alt="image.png"></p><p><strong>组合</strong>关系用 <strong>实心菱形</strong>+横线/实线箭头 表示</p><h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><p>而聚合的<strong>整体和部分可以独立存在</strong>，如汽车和轮胎，部门和员工</p><p><img src="/img/2024/09/pattern1/4.png" alt="image.png"></p><p><strong>聚合</strong>关系用 <strong>空心菱形</strong>+横线/实线箭头 表示</p><h2 id="3-依赖、继承、实现"><a href="#3-依赖、继承、实现" class="headerlink" title="3. 依赖、继承、实现"></a>3. 依赖、继承、实现</h2><h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p><strong>依赖</strong>是一种使用关系，它是对象之间<strong>耦合度最弱</strong>的一种关联方式，是临时性的关联。</p><p>表示一个类中的方法通过 <strong>局部变量、方法的参数或者对静态方法</strong> 的调用来访问另一个类(被依赖类)中的某些方法来完成一些职责。</p><p><img src="/img/2024/09/pattern1/5.png" alt="image.png"></p><p><strong>依赖</strong>关系用 <strong>虚线箭头</strong> 表示</p><h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>继承关系是对象之间<strong>耦合度最大</strong>的一种关系，表示一般与特殊的关系，是父类与子类之间的关系</p><p><img src="/img/2024/09/pattern1/6.png" alt="image.png"></p><p><strong>继承</strong>关系用 <strong>空心三角实线箭头</strong> 表示</p><h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>实现关系是接口与实现类之间的关系。在这种关系中，类实现了接口，类中的操作实现了接口中所声明的所有的抽象操作。</p><p><img src="/img/2024/09/pattern1/7.png" alt="image.png"></p><p><strong>实现</strong>关系用 <strong>空心三角虚线箭头</strong> 表示</p><h1 id="二、六大设计原则"><a href="#二、六大设计原则" class="headerlink" title="二、六大设计原则"></a>二、六大设计原则</h1><h2 id="1-开闭原则"><a href="#1-开闭原则" class="headerlink" title="1. 开闭原则"></a>1. 开闭原则</h2><p>开闭原则 即 <strong>对扩展开放，对修改关闭</strong></p><p>在程序需要进行拓展的时候，不能去修改原有的代码，实现一个热插拔的效果。</p><p>简言之，是为了使程序的扩展性好，易于维护和升级。</p><p>实现方式是使用 <strong>接口</strong> 和 <strong>派生类</strong></p><h2 id="2-里氏代换原则"><a href="#2-里氏代换原则" class="headerlink" title="2. 里氏代换原则"></a>2. 里氏代换原则</h2><p>里氏代换原则 即 <strong>任何基类可以出现的地方，子类一定可以出现</strong></p><p>通俗理解: 子类可以扩展父类的功能，但不能改变父类原有的功能</p><p>换句话说，子类继承父类时，除添加新的方法完成新增功能外，尽量<strong>不要重写父类的方法</strong></p><p>【例子】</p><p>如果让 正方形类 继承 长方形类（包含 setLength(), setWidth()方法）</p><p><img src="/img/2024/09/pattern1/8.png" alt="image.png"></p><p>那么正方形类会重写长方形类的这两个方法，以实现自身的逻辑，从而违反里氏代换原则</p><p>修正方案：</p><p><img src="/img/2024/09/pattern1/9.png" alt="image.png"></p><p>新建 Quadrilateral 接口，让长方形和正方形分别去实现该接口，而使用长方形的类依赖该接口</p><h2 id="3-依赖倒转原则"><a href="#3-依赖倒转原则" class="headerlink" title="3. 依赖倒转原则"></a>3. 依赖倒转原则</h2><p>依赖倒转原则 即 <strong>高层模块不应该依赖低层模块，两者都应该依赖其抽象</strong>;</p><p>抽象不应该依赖细节，细节应该依赖抽象。简单的说就是要求<strong>对抽象进行编程</strong></p><p>不要对实现进行编程，这样就降低了客户与实现模块间的耦合。</p><p>【例子】</p><p>电脑有多种配件比如cpu，显卡，显示器</p><p>电脑不应该依赖于特定品牌的cpu，显卡，显示器，也就是不能依赖于实现</p><p>而是应该依赖于cpu，显卡，显示器它们的抽象</p><h2 id="4-迪米特法则"><a href="#4-迪米特法则" class="headerlink" title="4. 迪米特法则"></a>4. 迪米特法则</h2><p>迪米特法则 又叫最小知识法则</p><p>其含义是: 如果两个软件实体无须直接通信，那么就不应当发生直接的相互调用，可以<strong>通过第三方转发</strong>该调用。</p><p>其目的是降低类之间的耦合度，提高模块的相对独立性。</p><p>迪米特法则的</p><p>【例子】</p><p>明星通过经纪人组织与粉丝的见面会</p><p>甲方公司通过乙方公司把需求拍给牛马</p><h2 id="5-接口隔离原则"><a href="#5-接口隔离原则" class="headerlink" title="5. 接口隔离原则"></a>5. 接口隔离原则</h2><p>接口隔离原则 即 <strong>客户端不应该被迫依赖于它不使用的方法; 一个类对另一个类的依赖应该建立在最小的接口上</strong>。</p><p>实现上采用将 <strong>包含多个方法的接</strong>口 分解为 <strong>多个只包含少量方法的接口</strong></p><p>【例子】</p><p>一个品牌的安全门实现了 防火、防水、防盗</p><p>另一个品牌的安全门实现了 防火、防水</p><p>若定义接口 包含 防火、防水、防盗 三个功能，那么第二个类就被迫依赖于它不使用的防盗方法</p><p>故定义三个接口分别为 防火、防水、防盗</p><h2 id="6-合成复用原则"><a href="#6-合成复用原则" class="headerlink" title="6. 合成复用原则"></a>6. 合成复用原则</h2><p>合成复用原则 即 尽量<strong>先使用组合或者聚合</strong>等关联关系来实现，其次<strong>才考虑使用继承</strong>关系来实现。</p><p>继承会将父类的细节暴露给子类，破坏了类的封装性，使子类与父类耦合度高，限制了复用的灵活性。</p><p>【例子】</p><p>现有父类为汽车，子类继承汽车，分别为汽油汽车和新能源汽车，孙子类继承汽油汽车/新能源汽车再拓展不同颜色的汽车</p><p><img src="/img/2024/09/pattern1/10.png" alt="image.png"></p><p>可见，再给汽车增加一种类型的动力源时，会出现很多的孙子类，扩展性很差。</p><p>修改方案：</p><p><img src="/img/2024/09/pattern1/11.png" alt="image.png"></p><p>父类为汽车，包含颜色属性（聚合颜色这一接口，而颜色这一接口可被各种颜色所实现），子类继承汽车使用不同的动力源</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发技能 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> UML </tag>
+            
+            <tag> 设计模式 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Filebeat安装部署及入门应用</title>
       <link href="/2024/07/27/Filebeat%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%85%A5%E9%97%A8%E5%BA%94%E7%94%A8/"/>
       <url>/2024/07/27/Filebeat%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%85%A5%E9%97%A8%E5%BA%94%E7%94%A8/</url>
@@ -545,9 +572,9 @@
             
             <tag> 数据库 </tag>
             
-            <tag> 关系代数 </tag>
-            
             <tag> SQL </tag>
+            
+            <tag> 关系代数 </tag>
             
         </tags>
       
@@ -773,9 +800,9 @@
             
             <tag> 机器学习 </tag>
             
-            <tag> SVM </tag>
-            
             <tag> PCA </tag>
+            
+            <tag> SVM </tag>
             
             <tag> K-Means </tag>
             
