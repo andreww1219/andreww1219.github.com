@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>腾讯 IEG 游戏前沿技术 二面复盘</title>
+      <link href="/2024/09/18/%E8%85%BE%E8%AE%AF%20IEG%20%E6%B8%B8%E6%88%8F%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF%20%E4%BA%8C%E9%9D%A2%E5%A4%8D%E7%9B%98/"/>
+      <url>/2024/09/18/%E8%85%BE%E8%AE%AF%20IEG%20%E6%B8%B8%E6%88%8F%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF%20%E4%BA%8C%E9%9D%A2%E5%A4%8D%E7%9B%98/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>二面 40 分钟，面的稀烂，唯一可以圈点的就是一道 hard 写出来了。问了很多基础知识，没有形成很好的引导链到自己准备的项目经历上</p><h1 id="面试过程"><a href="#面试过程" class="headerlink" title="面试过程"></a>面试过程</h1><h2 id="自我介绍"><a href="#自我介绍" class="headerlink" title="自我介绍"></a>自我介绍</h2><p>巴拉巴拉同一面。。。这次没说做了运维相关，但还是提了自己了解机器学习经典算法。强调了在 xxx 实习的主要产出，包括分布式定时任务解决方案，以及对已有项目的接口调整和性能优化。</p><h2 id="问：讲一下做了什么优化"><a href="#问：讲一下做了什么优化" class="headerlink" title="问：讲一下做了什么优化"></a>问：讲一下做了什么优化</h2><p>答：主要是在后台管理项目和数据分析平台项目中，出现了由于大数据量导致的性能问题。我也根据 SQL 慢查询优化的知识还有数据结构的知识进行了性能的优化</p><p>问：能具体讲讲吗</p><p>答：通过 explain 看查询的过程，尽量利用最左前缀法则，让查询条件走索引。然后看联表的时候，是不是小表驱动大表，有没有使用谓词下推，尽量不要使用 select *，尽量让索引覆盖返回字段。如果有深度分页的情况。。。（被打断）</p><p>问：可以讲有几种类型的优化吗</p><p>答：一种就是通过索引去优化，一种是通过联表的方式，还有就是分页的优化，以及分组优化，其实也是让分组条件走索引，也算是索引相关的优化</p><h2 id="问：MySQL-索引原理"><a href="#问：MySQL-索引原理" class="headerlink" title="问：MySQL 索引原理"></a>问：MySQL 索引原理</h2><p>答：索引使用的是 B树 和 B+树，我们知道全表扫描的话消耗的复杂度是 O(n)，在数据结构中对二叉搜索树做查找只需要 O（log n) 的复杂度</p><blockquote><p>复盘：</p><p>MySQL 索引不止有 B-tree、B+tree，还有 hash</p><p>在仅需要 = &lt;&gt; IN 而不需要范围查询时，可以使用 hash 得到 O(1) 的查询效率</p></blockquote><h2 id="问：讲一下哈希表"><a href="#问：讲一下哈希表" class="headerlink" title="问：讲一下哈希表"></a>问：讲一下哈希表</h2><p>答：以 redis 中的 hash 数据结构为例，redis 中一个 key 代表一块存储空间，使用 hash 时，一个 key 可以对应多个 field，每个 field 作为一个哈希函数的参数值，映射得到一个 value 或者 value 的存储地址</p><h2 id="问：如何减少哈希冲突"><a href="#问：如何减少哈希冲突" class="headerlink" title="问：如何减少哈希冲突"></a>问：如何减少哈希冲突</h2><p>答：如果出现哈希冲突的话可以顺延到后面的位置，也可以。。。（被打断）</p><p>问：怎么去减少哈希冲突</p><p>答：怎么去减少的话，可能得设计哈希函数，比如说对一个质数取模</p><blockquote><p>复盘：</p><p>参考：</p><p><a href="https://blog.csdn.net/weixin_68174885/article/details/139364999">什么是哈希冲突 以及如何避免哈希冲突-CSDN博客</a></p><p><a href="https://blog.csdn.net/m0_37925202/article/details/82015731">散列函数（哈希）_哈希 散列函数-CSDN博客</a></p><p>选择一个好的哈希函数：直接定址、相乘取整、平方取中、除留余数</p><p>增加哈希表大小</p><p>使用哈希盐值</p></blockquote><h2 id="问：卷积神经网络有使用过吗"><a href="#问：卷积神经网络有使用过吗" class="headerlink" title="问：卷积神经网络有使用过吗"></a>问：卷积神经网络有使用过吗</h2><p>答：有了解卷积神经网络的原理。相比于全连接，卷积层的特点是引入了卷积核，本质上是部分连接 + 共享权值。</p><h2 id="问：1-x-1的卷积核有什么用"><a href="#问：1-x-1的卷积核有什么用" class="headerlink" title="问：1 x 1的卷积核有什么用"></a>问：1 x 1的卷积核有什么用</h2><p>答：1 x 1 的卷积核是不是相当于全连接（脑袋宕机了）</p><blockquote><p>复盘：</p><p>参考资料：<a href="https://blog.csdn.net/qq_41554005/article/details/107392995">深度学习笔记（六）：1x1卷积核的作用归纳和实例分析_1x1卷积降维-CSDN博客</a></p><p>1 x 1 的卷积核可以对矩阵做放缩；减少通道数，降低运算量。</p></blockquote><h2 id="写一道题吧"><a href="#写一道题吧" class="headerlink" title="写一道题吧"></a>写一道题吧</h2><p>题目：<a href="https://leetcode.cn/problems/sliding-window-maximum/">滑动窗口最大值</a></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] maxSlidingWindow(<span class="type">int</span>[] nums, <span class="type">int</span> k) &#123;</span><br><span class="line">        <span class="type">int</span>[] res = <span class="keyword">new</span> <span class="title class_">int</span>[nums.length - k + <span class="number">1</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        Deque&lt;Integer&gt; queue = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; nums.length; ++i)&#123;</span><br><span class="line">            <span class="keyword">while</span> (!queue.isEmpty() &amp;&amp; queue.peekFirst() &lt; i - k + <span class="number">1</span>)</span><br><span class="line">                queue.removeFirst();</span><br><span class="line">            <span class="keyword">while</span> (!queue.isEmpty() &amp;&amp; nums[i] &gt; nums[queue.peekLast()])</span><br><span class="line">                queue.removeLast();</span><br><span class="line">            queue.offer(i);</span><br><span class="line">            <span class="keyword">if</span> (i &gt;= k - <span class="number">1</span>)</span><br><span class="line">                res[index++] = nums[queue.peekFirst()];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="问：c-有了解吧"><a href="#问：c-有了解吧" class="headerlink" title="问：c++ 有了解吧"></a>问：c++ 有了解吧</h2><p>答：对 c++ 面向对象、STL 容器库、RAII 等特性有了解。</p><p>问：java 中没有内存管理，你有对 c++ 内存管理方面的实践吗</p><p>答：学校基础课程教的 c++ 是自己分配和释放指针，容易造成内存泄露的问题。c++ 中有一种叫 RAII 的思想，就是让在构造函数中分配资源，在析构函数中释放资源。智能指针就是 RAII 的一个应用案例</p><p>对面：智能指针还是麻烦了一点</p><h2 id="问：golang-的话你多久能上手"><a href="#问：golang-的话你多久能上手" class="headerlink" title="问：golang 的话你多久能上手"></a>问：golang 的话你多久能上手</h2><p>答：之前有了解过 golang 的语法，如果是用 golang 做 web 开发的话，应该两到三天可以上手。因为后台开发那一套生态的思想是共通的，大概一周内可以做微服务相关的应用</p><h2 id="问：前端有写过是吧"><a href="#问：前端有写过是吧" class="headerlink" title="问：前端有写过是吧"></a>问：前端有写过是吧</h2><p>答：是的，之前在学校有做过 web 项目的前端，在实习的时候也跟这边的前端有协作，对前端做调整</p><h2 id="问情况"><a href="#问情况" class="headerlink" title="问情况"></a>问情况</h2><p>（闲聊是不是对面对自己不感兴趣的征兆）</p><p>问：在粤海还是丽湖</p><p>答：粤海</p><p>对面：那实习的话挺近的</p><p>问：现在实习那边的项目还有多久，如果发 offer 的话</p><p>答：会尽快对接，快的话一周内，慢的话两周左右</p><h2 id="反问"><a href="#反问" class="headerlink" title="反问"></a>反问</h2><p>自作聪明反问了下哈希表怎么避免冲突，对面说是基础的东西，我就说那我回去自己搜一下。。。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 面试经验 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> SQL </tag>
+            
+            <tag> 面试 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>腾讯 IEG 游戏前沿技术 一面复盘</title>
       <link href="/2024/09/18/%E8%85%BE%E8%AE%AF%20IEG%20%E6%B8%B8%E6%88%8F%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF%20%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/"/>
       <url>/2024/09/18/%E8%85%BE%E8%AE%AF%20IEG%20%E6%B8%B8%E6%88%8F%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF%20%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/</url>
@@ -26,9 +53,9 @@
             
             <tag> SQL </tag>
             
-            <tag> Redis </tag>
-            
             <tag> 面试 </tag>
+            
+            <tag> Redis </tag>
             
         </tags>
       
@@ -930,9 +957,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 逻辑回归 </tag>
-            
             <tag> 梯度下降 </tag>
+            
+            <tag> 逻辑回归 </tag>
             
         </tags>
       
