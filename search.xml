@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title>暑期第一面oωo, TME一面面经</title>
+      <link href="/2025/03/11/%E6%9A%91%E6%9C%9F%E7%AC%AC%E4%B8%80%E9%9D%A2o%CF%89o,%20TME%E4%B8%80%E9%9D%A2%E9%9D%A2%E7%BB%8F/"/>
+      <url>/2025/03/11/%E6%9A%91%E6%9C%9F%E7%AC%AC%E4%B8%80%E9%9D%A2o%CF%89o,%20TME%E4%B8%80%E9%9D%A2%E9%9D%A2%E7%BB%8F/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>面试体验挺好的，讲项目什么的面试官也不会打断，跟着思路听，也会分享自己的思路。发现那边跟我现在在公司使用的开发平台和工具还挺相似的，都是TKE还有用灯塔做报表。反问业务对面给我介绍了好多，总之是做独立音乐人相关的内容和签约，感觉还蛮有意思的。</p><p>PS：居然没有出算法题</p><h1 id="面经"><a href="#面经" class="headerlink" title="面经"></a>面经</h1><p>问项目</p><p>问MySQL，还有什么类型的锁，答插入意向锁、元数据锁</p><p>问元数据锁是什么锁，答在对表的字段做更改的时候加的锁</p><p>问生产环境如果对一个千万级大表加字段，怎么避免长时间加锁，因为看过生产环境加索引的方案，然后转移话题说生产环境加索引（其实大同小异）要怎么加，答建一个新表，加字段/索引，将原表数据导入新表，将期间的增量数据导入新表，新旧表改名</p><blockquote><p>复盘：发现自己讲的只是MySQL5.6.7之前的 pt-online-schema-change 方案，新版本有内部Online DDL，可以参考文章：<a href="https://developer.aliyun.com/article/1638215">阿里面试：1000万级大表, 如何 加索引？-阿里云开发者社区</a></p></blockquote><p>问给一个update，条件包括id、age、name，age&lt;16，会发生什么，答会把&lt;16的数据都锁住，特别讲了下16边界情况的next-key-lock</p><p>问索引，答举例一个索引建在name上面，根据字典序排序，如果是前缀模糊查询能走索引，%开头会失效，展开讲了索引失效的几种情况，举例实际应用时怎么避免索引失效</p><p>问B树和B+树的区别，答B+树数据都在叶子节点，IO次数少，且有双向链表相连，支持范围查询，插入删除方便</p><p>问网络，TCP连接和断开连接过程，答三次握手四次挥手过程</p><p>问Java，有没有用过多线程，回答提了一嘴用过ComparableFuture，然后转移话题到做过的定时任务怎么配置线程池（得好好看下JUC了）</p><p>问往线程池里面放一个线程会怎样，答根据核心线程数、最大线程数、拒绝策略决定执行流程</p><p>问拒绝策略有哪些，没答上</p><blockquote><p>复盘：拒绝策略默认是 AbortPolicy 会丢弃任务并抛出异常，还有 DiscardPolicy 丢弃任务不抛出异常、 DiscardOldestPolicy 丢弃最前面的任务，重新提交被拒绝的任务、 CallerRunsPolicy 由提交任务的线程去处理任务</p></blockquote><p>问有没有在Java中使用过事务，Java中是怎么实现的，答@EnableTransactionManager @Transactional可以实现声明式事务，还有方法可以实现编程式事务，推测@EnableTransactionManager会装配事务处理器，@Transactional是使用AOP</p><p>问有没有用过Java其他相关组件，比如Spring、Redis相关的，答在海关有用SpringCloud</p><p>反问那边业务，说是跟独立音乐人的内容和签约相关的业务，问是不是确实是暑期带转正说是，问培训制度，说跟这边差不多，就只是有导师带</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 面试经验 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Java </tag>
+            
+            <tag> 多线程 </tag>
+            
+            <tag> TCP </tag>
+            
+            <tag> 数据库 </tag>
+            
+            <tag> 面试 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Redis常见面试题大白话简答，关于认识Redis及其数据结构、线程模型和持久化</title>
       <link href="/2025/03/02/Redis%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%A4%A7%E7%99%BD%E8%AF%9D%E7%AE%80%E7%AD%94%EF%BC%8C%E5%85%B3%E4%BA%8E%E8%AE%A4%E8%AF%86Redis%E5%8F%8A%E5%85%B6%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%81%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96/"/>
       <url>/2025/03/02/Redis%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98%E5%A4%A7%E7%99%BD%E8%AF%9D%E7%AE%80%E7%AD%94%EF%BC%8C%E5%85%B3%E4%BA%8E%E8%AE%A4%E8%AF%86Redis%E5%8F%8A%E5%85%B6%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%81%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96/</url>
@@ -821,6 +854,33 @@
     
     
     <entry>
+      <title>机器学习笔记——概率生成模型</title>
+      <link href="/2024/01/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%A6%82%E7%8E%87%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/"/>
+      <url>/2024/01/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%A6%82%E7%8E%87%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>吴恩达的视频里没提到概率生成模型，在李宏毅的作业2看到了，感觉挺有必要理解的，可以很自然而然地引出逻辑回归的模型。</p><p>参考：<a href="https://study.163.com/course/courseLearn.htm?courseId=1208946807">李宏毅机器学习中文课程 - 网易云课堂：分类：概率生成模型</a></p><h1 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a>一、问题描述</h1><p>已知m组数据$x^{(1)}, x^{(2)}, …, x^{(m)}$，每组数据表示n个特征,可写为一个n维的向量<br>即：<script type="math/tex">(x^{(i)})^T = ( x^{(i)}_1, ..., x^{(i)}_n)</script><br>且每组数据的真实值$y^{(i)}$只能为0或1</p><p>给定一个数据$x$，预测$x$对应的$y$值。</p><h1 id="二、解决方案"><a href="#二、解决方案" class="headerlink" title="二、解决方案"></a>二、解决方案</h1><h2 id="1-贝叶斯公式求概率表达式"><a href="#1-贝叶斯公式求概率表达式" class="headerlink" title="1. 贝叶斯公式求概率表达式"></a>1. 贝叶斯公式求概率表达式</h2><p>由题可知，我们根据真实值将$m$组数据分为两类$C_0$和$C_1$，其中$C_0$代表真实值为$0$的数据的集合，一共有$m_0$组，$C_1$代表真实值为$1$的数据的集合，一共有$m_1$组</p><p>那么给定数据$x$，由贝叶斯公式，$x$出现在$C_0$的概率为</p><script type="math/tex; mode=display">P(C_0 | x) = \frac{P(x | C_0) P(C_0)} { P(x | C_0) P(C_0) + P(x | C_1) P(C_1) }</script><script type="math/tex; mode=display">P(C_0 | x) = \frac{1} { 1 + \frac{P(x | C_1) P(C_1)}{P(x | C_0) P(C_0)} }</script><p>其中，$P(x | C_0)$代表给定集合$C_0$，出现数据为$x$的概率，即</p><script type="math/tex; mode=display">P(x | C_0) = f_{\mu^0, \Sigma^0}(x)</script><p>其中$ \mu^0 $ 和 $ \Sigma^0 $为$ C_0 $的均值和协方差矩阵，由$C_0$确定。</p><p>同理，$ P(x | C_1) = f_{\mu^1, \Sigma^1}(x) $</p><p>而$P(C_0)$代表随机取一组数据在$C_0$的概率，即$ P(C_0) = \frac{m_0}{m_0 + m_1} $</p><p>同理，$ P(C_1) = \frac{m_1}{m_0 + m_1} $</p><h2 id="2-由数据集求概率密度函数"><a href="#2-由数据集求概率密度函数" class="headerlink" title="2. 由数据集求概率密度函数"></a>2. 由数据集求概率密度函数</h2><p>当数据足够大时，由中心极限定理，$C_0$服从正态分布</p><script type="math/tex; mode=display">f_{\mu^0, \Sigma^0}(x) = \frac{1}{ (2\pi)^{\frac{n}{2}} |\Sigma^0|^{ \frac{1}{2}}} exp(-\frac{1}{2} (x - \mu^0)^T (\Sigma^0)^{-1} (x - \mu^0))</script><p>由已有数据求$ \mu^0 $和 $\Sigma^0$的最大似然估计为</p><script type="math/tex; mode=display">\mu^0 = \frac{1}{m_0} \sum_{i: y^{(i)} = 0} x^{(i)}</script><script type="math/tex; mode=display">\Sigma^0 = \frac{1}{m_0} \sum_{i: y^{(i)} = 0} (x^{(i)} - \mu^0) (x^{(i)} - \mu^0)^T</script><p>同理，由$C_1$确定的概率分布函数、均值、协方差矩阵为</p><script type="math/tex; mode=display">f_{\mu^1, \Sigma^1}(x) = \frac{1}{ (2\pi)^{\frac{n}{2}} |\Sigma^1|^{ \frac{1}{2}}} exp(-\frac{1}{2} (x - \mu^1)^T (\Sigma^1)^{-1} (x - \mu^1))</script><script type="math/tex; mode=display">\mu^1 = \frac{1}{m_1} \sum_{i: y^{(i)} = 1} x^{(i)}</script><script type="math/tex; mode=display">\Sigma^1 = \frac{1}{m_1} \sum_{i: y^{(i)} = 1} (x^{(i)} - \mu^1) (x^{(i)} - \mu^1)^T</script><h2 id="3-公式整理"><a href="#3-公式整理" class="headerlink" title="3. 公式整理"></a>3. 公式整理</h2><p>对1中表达式做变形，令</p><script type="math/tex; mode=display">\frac{P(x | C_1) P(C_1)}{P(x | C_0) P(C_0)}  = e^{-z}</script><p>得</p><script type="math/tex; mode=display">P(C_0 | x) =  \frac{1} { 1 + e^{-z} } = g(z)</script><script type="math/tex; mode=display">z = -\ln {\frac{P(x | C_1) P(C_1)}{P(x | C_0) P(C_0)} } = \ln {\frac{P(x | C_0) }{ P(x | C_1)} } + \ln { \frac{ P(C_0) }{ P(C_1) } }</script><p>将2中概率分布函数代入到表达式中，得</p><script type="math/tex; mode=display">z = \ln{\frac{ |\Sigma|^1}{ | \Sigma|^0 } } - \frac{1}{2} (x - \mu^0)^T (\Sigma^0)^{-1} (x - \mu^0) + \frac{1}{2} (x - \mu^1)^T (\Sigma^1)^{-1} (x - \mu^1)) + \ln{ \frac{m_0}{m_1}}</script><p>若将$\Sigma^0$和$\Sigma^1$等同为一个值$\Sigma$（未考究），可继续化简得：</p><script type="math/tex; mode=display">z = (\mu^0 - \mu^1)^T \Sigma^{-1} x - \frac{1}{2} (\mu^0)^T \Sigma^{-1} \mu^0 + \frac{1}{2} (\mu^1)^T \Sigma^{-1} \mu^1 + \ln{ \frac{m_0}{m_1}}</script><p>令$ z = \omega x + b$，则有</p><script type="math/tex; mode=display">\omega = (\mu^0 - \mu^1)^T \Sigma^{-1}</script><script type="math/tex; mode=display">b = - \frac{1}{2} (\mu^0)^T \Sigma^{-1} \mu^0 + \frac{1}{2} (\mu^1)^T \Sigma^{-1} \mu^1 + \ln{ \frac{m_0}{m_1}}</script><h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>既然预测$x$在一个分类中的概率$P(C_0 | x)$，能被关于$x$与某一向量的线性组合的函数，即$\omega x+ b$，$g(\omega x + b) = \frac{1}{1+ e^{\omega x+ b}}$，我们不妨假设向量</p><script type="math/tex; mode=display">\theta^T x = \omega x + b</script><p>这就很好的解释了为什么要引入$g(\theta^T x)$作为逻辑回归的假设。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 人工智能 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 机器学习 </tag>
+            
+            <tag> 逻辑回归 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>深入分解机器学习实战作业模板代码——二分类、卷积神经网络</title>
       <link href="/2024/01/20/%E6%B7%B1%E5%85%A5%E5%88%86%E8%A7%A3%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%AE%9E%E6%88%98%E4%BD%9C%E4%B8%9A%E6%A8%A1%E6%9D%BF%E4%BB%A3%E7%A0%81%E2%80%94%E2%80%94%E4%BA%8C%E5%88%86%E7%B1%BB%E3%80%81%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"/>
       <url>/2024/01/20/%E6%B7%B1%E5%85%A5%E5%88%86%E8%A7%A3%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%AE%9E%E6%88%98%E4%BD%9C%E4%B8%9A%E6%A8%A1%E6%9D%BF%E4%BB%A3%E7%A0%81%E2%80%94%E2%80%94%E4%BA%8C%E5%88%86%E7%B1%BB%E3%80%81%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</url>
@@ -844,33 +904,6 @@
             <tag> 逻辑回归 </tag>
             
             <tag> CNN </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>机器学习笔记——概率生成模型</title>
-      <link href="/2024/01/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%A6%82%E7%8E%87%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/"/>
-      <url>/2024/01/20/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E6%A6%82%E7%8E%87%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/</url>
-      
-        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>吴恩达的视频里没提到概率生成模型，在李宏毅的作业2看到了，感觉挺有必要理解的，可以很自然而然地引出逻辑回归的模型。</p><p>参考：<a href="https://study.163.com/course/courseLearn.htm?courseId=1208946807">李宏毅机器学习中文课程 - 网易云课堂：分类：概率生成模型</a></p><h1 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a>一、问题描述</h1><p>已知m组数据$x^{(1)}, x^{(2)}, …, x^{(m)}$，每组数据表示n个特征,可写为一个n维的向量<br>即：<script type="math/tex">(x^{(i)})^T = ( x^{(i)}_1, ..., x^{(i)}_n)</script><br>且每组数据的真实值$y^{(i)}$只能为0或1</p><p>给定一个数据$x$，预测$x$对应的$y$值。</p><h1 id="二、解决方案"><a href="#二、解决方案" class="headerlink" title="二、解决方案"></a>二、解决方案</h1><h2 id="1-贝叶斯公式求概率表达式"><a href="#1-贝叶斯公式求概率表达式" class="headerlink" title="1. 贝叶斯公式求概率表达式"></a>1. 贝叶斯公式求概率表达式</h2><p>由题可知，我们根据真实值将$m$组数据分为两类$C_0$和$C_1$，其中$C_0$代表真实值为$0$的数据的集合，一共有$m_0$组，$C_1$代表真实值为$1$的数据的集合，一共有$m_1$组</p><p>那么给定数据$x$，由贝叶斯公式，$x$出现在$C_0$的概率为</p><script type="math/tex; mode=display">P(C_0 | x) = \frac{P(x | C_0) P(C_0)} { P(x | C_0) P(C_0) + P(x | C_1) P(C_1) }</script><script type="math/tex; mode=display">P(C_0 | x) = \frac{1} { 1 + \frac{P(x | C_1) P(C_1)}{P(x | C_0) P(C_0)} }</script><p>其中，$P(x | C_0)$代表给定集合$C_0$，出现数据为$x$的概率，即</p><script type="math/tex; mode=display">P(x | C_0) = f_{\mu^0, \Sigma^0}(x)</script><p>其中$ \mu^0 $ 和 $ \Sigma^0 $为$ C_0 $的均值和协方差矩阵，由$C_0$确定。</p><p>同理，$ P(x | C_1) = f_{\mu^1, \Sigma^1}(x) $</p><p>而$P(C_0)$代表随机取一组数据在$C_0$的概率，即$ P(C_0) = \frac{m_0}{m_0 + m_1} $</p><p>同理，$ P(C_1) = \frac{m_1}{m_0 + m_1} $</p><h2 id="2-由数据集求概率密度函数"><a href="#2-由数据集求概率密度函数" class="headerlink" title="2. 由数据集求概率密度函数"></a>2. 由数据集求概率密度函数</h2><p>当数据足够大时，由中心极限定理，$C_0$服从正态分布</p><script type="math/tex; mode=display">f_{\mu^0, \Sigma^0}(x) = \frac{1}{ (2\pi)^{\frac{n}{2}} |\Sigma^0|^{ \frac{1}{2}}} exp(-\frac{1}{2} (x - \mu^0)^T (\Sigma^0)^{-1} (x - \mu^0))</script><p>由已有数据求$ \mu^0 $和 $\Sigma^0$的最大似然估计为</p><script type="math/tex; mode=display">\mu^0 = \frac{1}{m_0} \sum_{i: y^{(i)} = 0} x^{(i)}</script><script type="math/tex; mode=display">\Sigma^0 = \frac{1}{m_0} \sum_{i: y^{(i)} = 0} (x^{(i)} - \mu^0) (x^{(i)} - \mu^0)^T</script><p>同理，由$C_1$确定的概率分布函数、均值、协方差矩阵为</p><script type="math/tex; mode=display">f_{\mu^1, \Sigma^1}(x) = \frac{1}{ (2\pi)^{\frac{n}{2}} |\Sigma^1|^{ \frac{1}{2}}} exp(-\frac{1}{2} (x - \mu^1)^T (\Sigma^1)^{-1} (x - \mu^1))</script><script type="math/tex; mode=display">\mu^1 = \frac{1}{m_1} \sum_{i: y^{(i)} = 1} x^{(i)}</script><script type="math/tex; mode=display">\Sigma^1 = \frac{1}{m_1} \sum_{i: y^{(i)} = 1} (x^{(i)} - \mu^1) (x^{(i)} - \mu^1)^T</script><h2 id="3-公式整理"><a href="#3-公式整理" class="headerlink" title="3. 公式整理"></a>3. 公式整理</h2><p>对1中表达式做变形，令</p><script type="math/tex; mode=display">\frac{P(x | C_1) P(C_1)}{P(x | C_0) P(C_0)}  = e^{-z}</script><p>得</p><script type="math/tex; mode=display">P(C_0 | x) =  \frac{1} { 1 + e^{-z} } = g(z)</script><script type="math/tex; mode=display">z = -\ln {\frac{P(x | C_1) P(C_1)}{P(x | C_0) P(C_0)} } = \ln {\frac{P(x | C_0) }{ P(x | C_1)} } + \ln { \frac{ P(C_0) }{ P(C_1) } }</script><p>将2中概率分布函数代入到表达式中，得</p><script type="math/tex; mode=display">z = \ln{\frac{ |\Sigma|^1}{ | \Sigma|^0 } } - \frac{1}{2} (x - \mu^0)^T (\Sigma^0)^{-1} (x - \mu^0) + \frac{1}{2} (x - \mu^1)^T (\Sigma^1)^{-1} (x - \mu^1)) + \ln{ \frac{m_0}{m_1}}</script><p>若将$\Sigma^0$和$\Sigma^1$等同为一个值$\Sigma$（未考究），可继续化简得：</p><script type="math/tex; mode=display">z = (\mu^0 - \mu^1)^T \Sigma^{-1} x - \frac{1}{2} (\mu^0)^T \Sigma^{-1} \mu^0 + \frac{1}{2} (\mu^1)^T \Sigma^{-1} \mu^1 + \ln{ \frac{m_0}{m_1}}</script><p>令$ z = \omega x + b$，则有</p><script type="math/tex; mode=display">\omega = (\mu^0 - \mu^1)^T \Sigma^{-1}</script><script type="math/tex; mode=display">b = - \frac{1}{2} (\mu^0)^T \Sigma^{-1} \mu^0 + \frac{1}{2} (\mu^1)^T \Sigma^{-1} \mu^1 + \ln{ \frac{m_0}{m_1}}</script><h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>既然预测$x$在一个分类中的概率$P(C_0 | x)$，能被关于$x$与某一向量的线性组合的函数，即$\omega x+ b$，$g(\omega x + b) = \frac{1}{1+ e^{\omega x+ b}}$，我们不妨假设向量</p><script type="math/tex; mode=display">\theta^T x = \omega x + b</script><p>这就很好的解释了为什么要引入$g(\theta^T x)$作为逻辑回归的假设。</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> 人工智能 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> 机器学习 </tag>
-            
-            <tag> 逻辑回归 </tag>
             
         </tags>
       
@@ -1015,9 +1048,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 逻辑回归 </tag>
-            
             <tag> 梯度下降 </tag>
+            
+            <tag> 逻辑回归 </tag>
             
         </tags>
       
