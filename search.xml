@@ -8,7 +8,7 @@
       <link href="/2025/03/11/%E6%9A%91%E6%9C%9F%E7%AC%AC%E4%B8%80%E9%9D%A2o%CF%89o,%20TME%E4%B8%80%E9%9D%A2%E9%9D%A2%E7%BB%8F/"/>
       <url>/2025/03/11/%E6%9A%91%E6%9C%9F%E7%AC%AC%E4%B8%80%E9%9D%A2o%CF%89o,%20TME%E4%B8%80%E9%9D%A2%E9%9D%A2%E7%BB%8F/</url>
       
-        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>面试体验挺好的，讲项目什么的面试官也不会打断，跟着思路听，也会分享自己的思路。发现那边跟我现在在公司使用的开发平台和工具还挺相似的，都是TKE还有用灯塔做报表。反问业务对面给我介绍了好多，总之是做独立音乐人相关的内容和签约，感觉还蛮有意思的。</p><p>PS：居然没有出算法题</p><h1 id="面经"><a href="#面经" class="headerlink" title="面经"></a>面经</h1><p>问项目</p><p>问MySQL，还有什么类型的锁，答插入意向锁、元数据锁</p><p>问元数据锁是什么锁，答在对表的字段做更改的时候加的锁</p><p>问生产环境如果对一个千万级大表加字段，怎么避免长时间加锁，因为看过生产环境加索引的方案，然后转移话题说生产环境加索引（其实大同小异）要怎么加，答建一个新表，加字段/索引，将原表数据导入新表，将期间的增量数据导入新表，新旧表改名</p><blockquote><p>复盘：发现自己讲的只是MySQL5.6.7之前的 pt-online-schema-change 方案，新版本有内部Online DDL，可以参考文章：<a href="https://developer.aliyun.com/article/1638215">阿里面试：1000万级大表, 如何 加索引？-阿里云开发者社区</a></p></blockquote><p>问给一个update，条件包括id、age、name，age&lt;16，会发生什么，答会把&lt;16的数据都锁住，特别讲了下16边界情况的next-key-lock</p><p>问索引，答举例一个索引建在name上面，根据字典序排序，如果是前缀模糊查询能走索引，%开头会失效，展开讲了索引失效的几种情况，举例实际应用时怎么避免索引失效</p><p>问B树和B+树的区别，答B+树数据都在叶子节点，IO次数少，且有双向链表相连，支持范围查询，插入删除方便</p><p>问网络，TCP连接和断开连接过程，答三次握手四次挥手过程</p><p>问Java，有没有用过多线程，回答提了一嘴用过 CompletableFuture，然后转移话题到做过的定时任务怎么配置线程池（得好好看下JUC了）</p><p>问往线程池里面放一个线程会怎样，答根据核心线程数、最大线程数、拒绝策略决定执行流程</p><p>问拒绝策略有哪些，没答上</p><blockquote><p>复盘：拒绝策略默认是 AbortPolicy 会丢弃任务并抛出异常，还有 DiscardPolicy 丢弃任务不抛出异常、 DiscardOldestPolicy 丢弃最前面的任务，重新提交被拒绝的任务、 CallerRunsPolicy 由提交任务的线程去处理任务</p></blockquote><p>问有没有在Java中使用过事务，Java中是怎么实现的，答@EnableTransactionManager @Transactional可以实现声明式事务，还有方法可以实现编程式事务，推测@EnableTransactionManager会装配事务处理器，@Transactional是使用AOP</p><p>问有没有用过Java其他相关组件，比如Spring、Redis相关的，答在海关有用SpringCloud</p><p>反问那边业务，说是跟独立音乐人的内容和签约相关的业务，问是不是确实是暑期带转正说是，问培训制度，说跟这边差不多，就只是有导师带</p>]]></content>
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>面试体验挺好的，讲项目什么的面试官也不会打断，跟着思路听，也会分享自己的思路。发现那边跟我现在在公司使用的开发平台和工具还挺相似的，都是TKE还有用灯塔做报表。反问业务对面给我介绍了好多，总之是做独立音乐人相关的内容和签约，感觉还蛮有意思的。</p><p>PS：居然没有出算法题</p><h1 id="面经"><a href="#面经" class="headerlink" title="面经"></a>面经</h1><p>问项目</p><p>问MySQL，还有什么类型的锁，答插入意向锁、元数据锁</p><p>问元数据锁是什么锁，答在对表的字段做更改的时候加的锁</p><p>问生产环境如果对一个千万级大表加字段，怎么避免长时间加锁，因为看过生产环境加索引的方案，然后转移话题说生产环境加索引（其实大同小异）要怎么加，答建一个新表，加字段/索引，将原表数据导入新表，将期间的增量数据导入新表，新旧表改名</p><blockquote><p>复盘：发现自己讲的只是MySQL5.6.7之前的 pt-online-schema-change 方案，新版本有内部Online DDL，可以参考文章：<a href="https://developer.aliyun.com/article/1638215">阿里面试：1000万级大表, 如何 加索引？-阿里云开发者社区</a></p></blockquote><p>问给一个update，条件包括id、age、name，age&lt;16，会发生什么，答会把&lt;16的数据都锁住，特别讲了下16边界情况的next-key-lock</p><p>问索引，答举例一个索引建在name上面，根据字典序排序，如果是前缀模糊查询能走索引，%开头会失效，展开讲了索引失效的几种情况，举例实际应用时怎么避免索引失效</p><p>问B树和B+树的区别，答B+树数据都在叶子节点，IO次数少，且有双向链表相连，支持范围查询，插入删除方便</p><p>问哈希表是怎么样的，往里边放一个数据会发生什么，答会被散列到一个位置，如果出现哈希冲突有线性探测、二次探测、拉链等处理方法，Java里面的HashMap冲突超过一定数量使用红黑树</p><p>问哈希表扩容过程，没答上</p><blockquote><p>复盘：当HashMap中的元素数量超过一定比例，默认为0.75，也就是负载因子时，会触发扩容，HashMap默认初始容量为16，每次扩容长度变为原来的2倍，因而它的长度一直是2的幂次，这样做的好处是：1.为了使hash值尽可能均匀，HashMap使用的是int来存储计算得到的hash值，当长度为2的幂次时，由hash值得到数组下标就只需要与（数组长度-1）做位运算；2. 在进行扩容时，可以通过hash值作位运算后高出来的一位时0是1，决定该元素留在原数组还是扩容的部分，链表的话会被分成两个链表，红黑树会被拆分成两条链表再决定是否resize</p><p>参考：<br><a href="https://blog.csdn.net/qq_49217297/article/details/126304736">HashMap实现原理， 扩容机制，面试题和总结_hashmap扩容机制面试-CSDN博客</a><br><a href="https://zhuanlan.zhihu.com/p/146171862">HashMap扩容时，究竟对链表和红黑树做了什么？ - 知乎</a></p></blockquote><p>问网络，TCP连接和断开连接过程，答三次握手四次挥手过程</p><p>问Java，有没有用过多线程，回答提了一嘴用过 CompletableFuture，然后转移话题到做过的定时任务怎么配置线程池（得好好看下JUC了）</p><p>问往线程池里面放一个线程会怎样，答根据核心线程数、最大线程数、拒绝策略决定执行流程</p><p>问拒绝策略有哪些，没答上</p><blockquote><p>复盘：拒绝策略默认是 AbortPolicy 会丢弃任务并抛出异常，还有 DiscardPolicy 丢弃任务不抛出异常、 DiscardOldestPolicy 丢弃最前面的任务，重新提交被拒绝的任务、 CallerRunsPolicy 由提交任务的线程去处理任务</p></blockquote><p>问有没有在Java中使用过事务，Java中是怎么实现的，答@EnableTransactionManager @Transactional可以实现声明式事务，还有方法可以实现编程式事务，推测@EnableTransactionManager会装配事务处理器，@Transactional是使用AOP</p><p>问有没有用过Java其他相关组件，比如Spring、Redis相关的，答在海关有用SpringCloud</p><p>反问那边业务，说是跟独立音乐人的内容和签约相关的业务，问是不是确实是暑期带转正说是，问培训制度，说跟这边差不多，就只是有导师带</p>]]></content>
       
       
       <categories>
@@ -24,9 +24,9 @@
             
             <tag> 多线程 </tag>
             
-            <tag> TCP </tag>
-            
             <tag> 数据库 </tag>
+            
+            <tag> TCP </tag>
             
             <tag> 面试 </tag>
             
@@ -1048,9 +1048,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 梯度下降 </tag>
-            
             <tag> 逻辑回归 </tag>
+            
+            <tag> 梯度下降 </tag>
             
         </tags>
       
