@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>JVM的内存管理、垃圾回收、类加载和参数调优</title>
+      <link href="/2025/04/29/JVM%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E3%80%81%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E3%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/"/>
+      <url>/2025/04/29/JVM%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E3%80%81%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E3%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在面试中通常会考察JVM判断候选人的技术热情，对于Javaer还是比较重要的，整理一下JVM相关的知识点，包括JVM的内存管理、垃圾回收、类加载机制、JVM调优参数</p><p>参考资料：<br>JavaGuide：<a href="https://javaguide.cn/java/jvm/memory-area.html">Java内存区域详解（重点） | JavaGuide</a><br>二哥面渣逆袭：<a href="https://javabetter.cn/sidebar/sanfene/jvm.html#%E5%89%8D%E8%A8%80">JVM面试题，54道Java虚拟机八股文（2.3万字113张手绘图），面渣逆袭必看👍 | 二哥的Java进阶之路</a></p><h1 id="一、内存管理"><a href="#一、内存管理" class="headerlink" title="一、内存管理"></a>一、内存管理</h1><h2 id="1-讲一下JVM内存区域是怎么划分的"><a href="#1-讲一下JVM内存区域是怎么划分的" class="headerlink" title="1. 讲一下JVM内存区域是怎么划分的"></a>1. 讲一下JVM内存区域是怎么划分的</h2><p>JVM将内存区域划分为：堆、方法区、程序计数器、虚拟机栈和本地方法栈。</p><p>其中<strong>线程共享</strong>的是堆和方法区、<strong>线程私有</strong>的是程序计数器、虚拟机栈和本地方法栈</p><p><strong>程序计数器</strong>又称PC寄存器，指向当前线程所执行的字节码的行号，主要用于分支跳转、方法调用、线程切换和恢复</p><p><strong>虚拟机栈</strong>用于执行Java方法，每次调用一个Java方法，就会将一个栈帧入栈，栈帧包括方法的局部变量表、操作数栈、动态链接、方法出口等信息。类的静态方法的局部变量表没有this的引用。操作数栈是用于保存临时变量</p><p><strong>本地方法栈</strong>用于执行native方法，同虚拟机栈一样，在执行方法时会创建栈帧</p><p><strong>堆</strong>是JVM中最大的一块内存区域，被划分为Young Generation和Old Generation，Young Generation又可以划分为Eden区和s0、s1区</p><p><strong>方法区</strong>存储已被JVM加载的类信息、静态变量和即时编译器编译后的代码缓存等。在Java7之前，方法区由永久代（PermGen）实现，在Java7，静态变量和字符串常量池被放到了堆上，从Java8开始，方法区由元空间（MetaSpace）实现。之所以用元空间替代永久代，是因为永久代受限于JVM内存大小，容易导致OOM，而元空间只受限于机器的内存大小</p><h2 id="2-在new一个对象时会发生什么"><a href="#2-在new一个对象时会发生什么" class="headerlink" title="2. 在new一个对象时会发生什么"></a>2. 在new一个对象时会发生什么</h2><p>首先会检测该类是否被加载、解析和初始化，如果尚未，则执行类加载</p><p>第二步会为对象分配内存。内存分配有两种方式：一是<strong>指针碰撞</strong>，即堆内存被规整的分为已分配和空闲两部分，其间有一指针，在需要分配内存时将指针向后移动；二是<strong>空闲列表</strong>，即堆内存存在很多内存碎片，需要维护一个空闲列表，每次分配内存时找到足够大小的内存块并更新列表。<br>内存分配过程中可能出现多线程的抢占问题，如果开启<strong>TLAB</strong>（Thread Local Allocation Block），会为每一个线程保留一小块内存分配缓冲区，避免抢占，如果未开启TLAB或者TLAB空间不足，则会使用<strong>CAS+失败重试</strong>的机制保证更新操作的原子性</p><p>随后会完成初始化，分配0值</p><p>再生成对象头，对象头包含类的元数据信息、对象的哈希码以及对象的GC年龄信息等</p><p>随后执行init方法，将变量按照程序员的意愿赋值，这样一个对象就创建完成了</p><h2 id="3-一个对象的内存布局如何"><a href="#3-一个对象的内存布局如何" class="headerlink" title="3. 一个对象的内存布局如何"></a>3. 一个对象的内存布局如何</h2><p>一个对象在内存中由三部分构成，分别是：对象头、实际数据和对齐填充</p><p><strong>对象头</strong>可以由三部分构成</p><ol><li>第一部分是对象运行时的信息，包括对象的哈希码、GC年龄信息、线程持有的锁、锁状态标志等信息</li><li>第二部分是类型指针，指向类的元数据信息，也就是Class对象，类型指针可以由8字节被压缩为4字节（在JDK8默认开启）</li><li>第三部分只有数组拥有，用于记录数组长度</li></ol><p><strong>实际数据</strong>是指对象实际的成员变量值，会被重排对齐以提高内存访问的速度</p><p><strong>对齐填充</strong>是指整个对象的大小需要是8字节的倍数，缺失的部分需要填充额外的字节。对齐的意义是避免跨缓存行访问</p><h2 id="4-如何访问一个对象"><a href="#4-如何访问一个对象" class="headerlink" title="4. 如何访问一个对象"></a>4. 如何访问一个对象</h2><p>访问对象的方式有两种：</p><p>一种是使用<strong>句柄</strong>，也就是局部变量表的reference指向的是堆中句柄池的一个句柄地址，句柄会指向实际的对象信息和方法区的类信息，优点是对象被移动时不需要改变reference的值，只需要修改句柄的值</p><p>一种是<strong>直接引用</strong>，也就是局部变量表的reference指向的是实际堆中的对象信息，优点是访问速度快，减少了一次指针定位的时间开销</p><h2 id="5-对象有几种引用类型"><a href="#5-对象有几种引用类型" class="headerlink" title="5. 对象有几种引用类型"></a>5. 对象有几种引用类型</h2><p>对象有四种引用类型</p><p>使用new创建的引用类型为强引用， <strong>强引用（StrongReference）</strong> 除了不可达会被GC回收，就算内存不足也不会被回收</p><p>而 <strong>软引用（SoftReference）</strong> 在内存不足时会被回收</p><p><strong>弱引用（WeakReference）</strong> 无论内存是否充足，在下一次垃圾回收就会被回收</p><p><strong>虚引用（PhantomReference）</strong> 必须与 <strong>引用队列（Reference Queue）</strong> 关联起来，当对象被回收时，如果发现有虚引用，会将该引用加入到引用队列，故可以通过判断引用队列是否加入该虚引用来了解垃圾回收的过程</p><p>一般来说用软引用比较多，用于加速垃圾回收的速度，防止OOM</p><h2 id="6-堆区分配内存和回收原则是怎么样的"><a href="#6-堆区分配内存和回收原则是怎么样的" class="headerlink" title="6. 堆区分配内存和回收原则是怎么样的"></a>6. 堆区分配内存和回收原则是怎么样的</h2><p>新建的对象会优先在Eden区分配，如果Eden区空间不足，会根据JVM的<strong>空间分配担保机制</strong>触发Minor GC或Full GC，把对象从Eden区转移到Survior区和OldGen</p><blockquote><p><strong>空间分配担保机制</strong></p><p>Minor GC之前会检查OldGen最大可用连续空间大于YoungGen所有对象的空间</p><p>如果是，则会触发一次Minor GC</p><p>如果不是，则会根据参数<code>HandlePromotionFailure</code>，该参数为true且OldGen最大可用连续空间大于历次晋升到OldGen的平均大小时，则触发一次Minor GC，否则则触发一次Full GC</p></blockquote><p>如果Eden区的对象在GC后存活，则会移动到Survior区，并且GC年龄加一，之后每次在GC中存活都会使GC年龄加一，如果年龄达到一个阈值（默认15，最大15，因为记录年龄的空间只有4位），则会被移动到OldGen。该年龄阈值可以通过<code>MaxTenuringThreshold</code>配置，在JVM运行中可能动态更改，当积累的某个年龄所占百分比超过了Survior区的<code>TargetSurviorRatio</code>（默认为50）时，年龄阈值会更改为该年龄和<code>MaxTenuringThreshold</code>之间更小的值</p><p>除此之外，大对象会直接分配到OldGen，在G1垃圾回收器中，根据<code>G1HeapRegionSize</code>（堆大小）和<code>G1MixedGCSizeTheresholdPercent</code>（占堆大小的阈值）判断哪些是需要进入OldGen的大对象，在Parrellel Scavenge垃圾回收器中，由虚拟机根据内存情况和历史数据动态决定</p><h1 id="二、垃圾回收"><a href="#二、垃圾回收" class="headerlink" title="二、垃圾回收"></a>二、垃圾回收</h1><h2 id="1-怎么判断对象已经死亡"><a href="#1-怎么判断对象已经死亡" class="headerlink" title="1. 怎么判断对象已经死亡"></a>1. 怎么判断对象已经死亡</h2><p>一种是使用<strong>引用计数法</strong>，当对象每被引用一次，计数加一，计数为0说明对象不再被使用。无法解决循环依赖问题</p><p>一种是使用<strong>可达性分析算法</strong>，从一系列的“GC Roots”出发，向下搜索所有引用到的类，形成引用链，不被引用链关联的类说明需要被回收</p><p><strong>GC Roots</strong>一般为所有必须活跃的对象，比如：虚拟机栈中引用的对象、本地方法栈中引用的对象、方法区常量引用的对象、方法区中类静态属性引用的对象等</p><h2 id="2-如何判断一个类是无用的"><a href="#2-如何判断一个类是无用的" class="headerlink" title="2. 如何判断一个类是无用的"></a>2. 如何判断一个类是无用的</h2><p>当一个类满足三个条件</p><ol><li>类的所有实例都被GC</li><li>类的ClassLoader被GC</li><li>类的Class不被引用无法通过反射访问</li></ol><p>则说明该类是无用的类，JVM可以对其进行回收</p><h2 id="3-垃圾回收算法有哪些"><a href="#3-垃圾回收算法有哪些" class="headerlink" title="3. 垃圾回收算法有哪些"></a>3. 垃圾回收算法有哪些</h2><p>垃圾回收算法主要有以下三种：</p><ol><li><strong>标记-清除</strong>：标记出需要被回收（或不需要回收）的对象，并进行统一回收。缺点：效率不高，容易产生内存碎片</li><li><strong>标记-复制</strong>：将内存分为相同的两块，标记出需要被回收（或不需要回收）的对象，将存活的对象复制到另外一块。缺点：可利用内存减半，对象数量多时复制效率低下</li><li><strong>标记-整理</strong>：标记出需要被回收（或不需要回收）的对象，将存活对象整理到一侧</li></ol><p>通常对新生代使用标记-复制算法，付出少量对象的复制完成每次回收，对老年代使用标记-整理算法</p><h2 id="4-垃圾回收器有哪些"><a href="#4-垃圾回收器有哪些" class="headerlink" title="4. 垃圾回收器有哪些"></a>4. 垃圾回收器有哪些</h2><ol><li><strong>Serial</strong>：单线程执行垃圾回收，回收期间会STW（Stop The World），在新生代使用标记-复制，老年代版本叫做Serial Old，使用标记-整理</li><li><strong>ParNew</strong>：Serial的多线程版，在新生代执行标记-复制进行垃圾回收，通常与CMS搭配使用</li><li><strong>Parrallel Scavenge</strong>：追求高吞吐量（总停顿时间时间尽可能少），自适应调节暂停时间，通常与老年代版本Parrallel Old搭配使用</li><li><strong>CMS</strong>：CMS全称Cocurrent Mark Sweep，也就是并发标记清除，目标是低停顿（单次停顿时间尽可能少），先对root进行<strong>初始标记</strong>，用户线程和GC线程同时运行并进行<strong>并发标记</strong>，为修正用户线程运行导致的不一致而进行<strong>重新标记</strong>，最后在进行<strong>并发清除</strong></li><li><strong>G1</strong>：G1全称Garbage First，会维护优先列表，回收价值更高的区域；能以较高概率满足低停顿同时高吞吐；利用分代收集，无需与其它收集器配合；JDK9开始默认是G1；整体基于标记-整理，局部基于标记-复制；先对GC Roots进行<strong>初始标记</strong>，然后与应用并发，进行<strong>并发标记</strong>，随后进行<strong>最终标记</strong>，最后<strong>筛选回收</strong></li></ol><h2 id="5-吞吐量和低停顿为什么是矛盾的"><a href="#5-吞吐量和低停顿为什么是矛盾的" class="headerlink" title="5. 吞吐量和低停顿为什么是矛盾的"></a>5. 吞吐量和低停顿为什么是矛盾的</h2><p><strong>高吞吐</strong>指运行用户代码的时间占CPU总运行时间的比值尽可能高，为了追求高吞吐量，会降低GC回收频率，当堆内存达到一定比例才进行回收，同时单次GC时间更长</p><p><strong>低停顿</strong>指单次GC暂停时间尽可能短，那就需要及时、频繁地进行回收，导致暂停总时间延长</p><h1 id="三、类加载"><a href="#三、类加载" class="headerlink" title="三、类加载"></a>三、类加载</h1><h2 id="1-Class文件长什么样"><a href="#1-Class文件长什么样" class="headerlink" title="1. Class文件长什么样"></a>1. Class文件长什么样</h2><ol><li>Class文件前四个字节为<strong>魔数</strong>（Magic Number），固定为0xCAFEBABE，标识是JVM可接收的文件</li><li>然后是Class文件的<strong>大版本号</strong>和<strong>小版本号</strong>，大版本号比如Java8就是8</li><li><strong>常量池数量</strong>和<strong>常量池</strong>，保存类和接口的全限定名、方法和字段的名称和描述符</li><li><strong>访问标志</strong>，表示是public/abstract/final等信息，是否为接口或枚举，以及父类方法的调用方式等</li><li><strong>当前类</strong>、<strong>父类</strong>和实现的<strong>接口集合</strong></li><li><strong>字段数量</strong>和<strong>字段表</strong></li><li><strong>方法数量</strong>和<strong>方法表</strong></li><li><strong>属性数量</strong>和<strong>属性表</strong></li></ol><h2 id="2-类的加载过程是怎么样的"><a href="#2-类的加载过程是怎么样的" class="headerlink" title="2. 类的加载过程是怎么样的"></a>2. 类的加载过程是怎么样的</h2><p>类的加载过程包括：加载-&gt;链接-&gt;初始化，其中，链接包括：验证-&gt;准备-&gt;解析</p><p><strong>加载</strong>是由类加载器完成的，根据全类名获取该类的字节流，转换为方法区的数据结构，在内存中生成Class对象，作为访问入口</p><p><strong>验证</strong>是确保Class文件符合约束，包括文件格式验证（魔数、版本号等）、元数据验证（类的继承关系等）、字节码验证（代码语法）、符号引用验证（引用的方法、字段的存在性和合法性等）</p><p><strong>准备</strong>是指为类的静态变量分配内存和设置初始值</p><p><strong>解析</strong>是指将符号引用转换为直接引用的过程</p><p><strong>初始化</strong>是指执行初始化方法<code>clinit()</code>，之后JVM才真正地执行字节码。当类被主动引用时，会触发初始化，包括new一个对象、通过反射对类进行调用、使用类的静态变量或方法、子类被引用等</p><h2 id="3-类加载器是什么"><a href="#3-类加载器是什么" class="headerlink" title="3. 类加载器是什么"></a>3. 类加载器是什么</h2><p>类加载器的作用是将.class文件加载到JVM中成为Class对象，每一个Java类都有对应的类加载器，数组类的类加载器与数组元素的类加载器相同</p><p>除了BootstrapClassLoader是由C++实现的，其它类加载器都是继承自ClassLoader的，</p><p><strong>BootstrapClassLoader</strong>是最顶层的加载器，用于加载<code>%JAVA_HOME%/bin</code>下的JDK核心类库<br><strong>ExtensionClassLoader</strong>用于加载<code>%JRE_HOME%/bin/ext</code>下的jar包，和系统变量<code>java.ext.dirs</code>指定路径下的所有类<br><strong>AppClassLoader</strong>是面向用户的类加载器，加载classpath下的jar包和类</p><h2 id="4-什么是双亲委派模型"><a href="#4-什么是双亲委派模型" class="headerlink" title="4. 什么是双亲委派模型"></a>4. 什么是双亲委派模型</h2><p><strong>双亲委派模型</strong>是指类加载器会先将加载请求传递给父加载器，当父加载器无法加载时，再由自己执行加载</p><p>双亲委派模型实现了两个安全目标，一个是避免类的重复加载，一个是避免类的核心API被修改</p><p>通常继承ClassLoader可以重写<code>loadClass()</code>和<code>findClass()</code>方法，其中<code>loadClass()</code>方法中实现了双亲委派模型去加载类，<code>findClass()</code>根据二进制名查找类</p><p>如果想要绕过双亲委派模型，可以选择重写<code>loadClass()</code>，但是Java仍然具备更底层的安全机制，如在<code>preDefineClass()</code>方法进行类名校验，防止恶意代码定义或加载伪造的核心类</p><h1 id="四、JVM参数"><a href="#四、JVM参数" class="headerlink" title="四、JVM参数"></a>四、JVM参数</h1><h2 id="1-堆内存"><a href="#1-堆内存" class="headerlink" title="1. 堆内存"></a>1. 堆内存</h2><ol><li>指定堆内存最小值<code>-Xms</code>，指定堆内存最大值<code>-Xmx</code></li><li>指定新生代内存最小大小和最大大小：<code>-XX:NewSize</code>和<code>-XX:MaxNewSize</code>，前两者一致则<code>-Xmn&lt;young size&gt;[unit]</code>如-Xmn256m</li><li>指定永久代初始大小和最大大小：<code>-XX:PermSize</code>和<code>-XX:MaxPermSize</code>，指定元空间触发Full GC的阈值和元空间最大大小：<code>-XX:MetaspaceSize</code>和<code>-XX:MaxMetaspaceSize</code></li></ol><h2 id="2-垃圾回收"><a href="#2-垃圾回收" class="headerlink" title="2. 垃圾回收"></a>2. 垃圾回收</h2><h3 id="2-1-垃圾回收器选择"><a href="#2-1-垃圾回收器选择" class="headerlink" title="2.1 垃圾回收器选择"></a>2.1 垃圾回收器选择</h3><ol><li>使用串行垃圾收集：<code>-XX:+UseSerialGC</code></li><li>使用并行垃圾收集：<code>-XX:+UseParallelGC</code></li><li>使用CMS垃圾收集器：<code>-XX:+UseConcMarkSweepGC</code></li><li>使用G1垃圾收集器：<code>-XX:+UseG1GC</code></li></ol><h3 id="2-2-GC信息打印"><a href="#2-2-GC信息打印" class="headerlink" title="2.2 GC信息打印"></a>2.2 GC信息打印</h3><ol><li>打印基本GC信息：<code>-XX:+PrintGCDetails</code>和<code>-XX:+PrintGCDateStamps</code></li><li>打印对象分布：<code>-XX:+PrintTenuringDistribution</code></li><li>打印堆数据：<code>-XX:+PrintHeapAtGC</code></li><li>打印引用相关处理信息：<code>-XX:+PrintReferenceGC</code></li><li>打印STW时间：<code>-XX:+PrintGCApplicationStoppedTime</code></li></ol><h2 id="3-处理OOM"><a href="#3-处理OOM" class="headerlink" title="3. 处理OOM"></a>3. 处理OOM</h2><ol><li>启用OOM转储文件：<code>XX:+HeapDumpOnOutOfMemoryError</code></li><li>OOM转储文件路径：<code>XX:HeapDumpPath=./java_pid&lt;pid&gt;.hprof</code></li><li>OOM时启用紧急命令：<code>-XX:OnOutOfMemoryError=&quot;&lt; cmd args &gt;;&lt; cmd args &gt;&quot;</code></li><li>避免长时间无效GC，设置GC开销超出限制：<code>-XX:+UseGCOverheadLimit</code></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发技能 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Java </tag>
+            
+            <tag> JVM </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>docker底层原理简述</title>
       <link href="/2025/04/23/docker%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E7%AE%80%E8%BF%B0/"/>
       <url>/2025/04/23/docker%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E7%AE%80%E8%BF%B0/</url>
@@ -101,13 +128,13 @@
       
         <tags>
             
+            <tag> TCP </tag>
+            
             <tag> Java </tag>
             
             <tag> 多线程 </tag>
             
             <tag> 数据库 </tag>
-            
-            <tag> TCP </tag>
             
             <tag> 面试 </tag>
             
@@ -837,9 +864,9 @@
             
             <tag> 数据库 </tag>
             
-            <tag> 关系代数 </tag>
-            
             <tag> SQL </tag>
+            
+            <tag> 关系代数 </tag>
             
         </tags>
       
@@ -1065,9 +1092,9 @@
             
             <tag> 机器学习 </tag>
             
-            <tag> SVM </tag>
-            
             <tag> PCA </tag>
+            
+            <tag> SVM </tag>
             
             <tag> K-Means </tag>
             
@@ -1129,9 +1156,9 @@
             
             <tag> 线性回归 </tag>
             
-            <tag> 逻辑回归 </tag>
-            
             <tag> 梯度下降 </tag>
+            
+            <tag> 逻辑回归 </tag>
             
         </tags>
       
